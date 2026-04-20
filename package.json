@@ -1,0 +1,17 @@
+{
+  "name": "gowarm-skills-poc",
+  "version": "0.1.0",
+  "description": "Proof of concept: GoWarmCRM playbook plays as Anthropic skills. Discovery Call Prep is the reference implementation.",
+  "main": "server/index.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "express": "^4.19.2"
+  }
+}

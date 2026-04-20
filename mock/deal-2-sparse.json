@@ -1,0 +1,45 @@
+{
+  "prospect": {
+    "name": "Marcus Chen",
+    "title": "Director of Sales Operations",
+    "company": "Verdant Industrial Systems",
+    "linkedin_url": "https://linkedin.com/in/marcus-chen-example"
+  },
+  "account": {
+    "industry": "Manufacturing",
+    "size": "1000-5000",
+    "revenue_band": "$200M-$500M",
+    "recent_signals": []
+  },
+  "deal": {
+    "stage": "discovery_call",
+    "source": "outbound",
+    "playbook_id": "sales-enterprise-outbound-v2",
+    "created_at": "2026-04-10T09:00:00Z",
+    "days_in_stage": 5
+  },
+  "interaction_history": [
+    {
+      "type": "email_received",
+      "timestamp": "2026-04-17T18:22:00Z",
+      "direction": "inbound",
+      "summary": "Marcus replied: 'Sure, happy to take a call. I have 20 minutes Monday afternoon.'"
+    },
+    {
+      "type": "email_sent",
+      "timestamp": "2026-04-15T14:00:00Z",
+      "direction": "outbound",
+      "summary": "Rep sent cold outreach referencing Verdant's multi-site operations and sales execution challenges in manufacturing."
+    }
+  ],
+  "meddpicc": {
+    "metrics": null,
+    "economic_buyer": null,
+    "decision_criteria": null,
+    "decision_process": null,
+    "paper_process": null,
+    "identified_pain": null,
+    "champion": null,
+    "competition": null
+  }
+}

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoWarm — Discovery Call Prep</title>
+<style>
+  :root {
+    --ember: #E8630A;
+    --ember-hover: #CC5507;
+    --navy: #1A3A5C;
+    --navy-light: #2A4D73;
+    --bg: #F7F8FA;
+    --surface: #FFFFFF;
+    --border: #E4E7EB;
+    --text: #1F2937;
+    --text-muted: #6B7280;
+    --success: #059669;
+    --warning: #D97706;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  header {
+    background: var(--navy);
+    color: white;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  header h1 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+
+  header .badge {
+    background: var(--ember);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 32px 64px;
+  }
+
+  .control-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .control-bar label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .control-bar select,
+  .control-bar input[type="text"] {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: white;
+    font-size: 14px;
+    min-width: 240px;
+  }
+
+  .control-bar input[type="text"]:focus {
+    outline: none;
+    border-color: var(--ember);
+    box-shadow: 0 0 0 3px rgba(232, 99, 10, 0.1);
+  }
+
+  button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    background: var(--ember);
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  button:hover:not(:disabled) { background: var(--ember-hover); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .deal-summary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--navy);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .deal-summary strong { color: var(--text); }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card h2 {
+    margin: 0 0 14px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--navy);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card .copy-btn {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .card .copy-btn:hover { background: var(--bg); color: var(--text); }
+
+  .card .content {
+    font-size: 14px;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+
+  .card .content .subject-line {
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .card .content ol, .card .content ul { padding-left: 20px; margin: 8px 0; }
+  .card .content li { margin-bottom: 6px; }
+  .card .content .listening-for { color: var(--text-muted); font-size: 12px; font-style: italic; }
+
+  .email-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .email-tabs button {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .email-tabs button.active {
+    background: var(--navy);
+    color: white;
+    border-color: var(--navy);
+  }
+
+  .next-step {
+    display: inline-block;
+    background: #FFF4EC;
+    color: var(--ember);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .confidence-banner {
+    background: #FEF3C7;
+    border-left: 3px solid var(--warning);
+    padding: 12px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #78350F;
+    margin-top: 24px;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 48px;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .loading .spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--ember);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error {
+    background: #FEE2E2;
+    border-left: 3px solid #DC2626;
+    padding: 16px;
+    border-radius: 4px;
+    color: #7F1D1D;
+    font-size: 14px;
+  }
+
+  @media (max-width: 800px) {
+    .cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>GoWarm Sales Execution</h1>
+  <span class="badge">Skill: Discovery Call Prep</span>
+</header>
+
+<main>
+
+  <div class="control-bar">
+    <label for="dealInput">Deal ID:</label>
+    <input id="dealInput" type="text" placeholder="e.g. 1-rich or a GoWarm deal ID" value="1-rich" />
+    <button id="runBtn">Run Discovery Call Prep</button>
+  </div>
+
+  <div id="dealSummary" class="deal-summary" style="display:none;"></div>
+  <div id="output"></div>
+
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let activeEmailVariant = "strong";
+let lastOutput = null;
+
+$("runBtn").addEventListener("click", runSkill);
+
+async function runSkill() {
+  const dealId = $("dealInput").value.trim();
+  if (!dealId) {
+    $("output").innerHTML = `<div class="error">Enter a deal ID to run the skill.</div>`;
+    return;
+  }
+  const btn = $("runBtn");
+  const output = $("output");
+  btn.disabled = true;
+  btn.textContent = "Running...";
+  output.innerHTML = `<div class="loading"><span class="spinner"></span>Running skill against deal payload...</div>`;
+  $("dealSummary").style.display = "none";
+
+  try {
+    // Step 1: fetch the deal payload
+    const dealResp = await fetch(`/api/deals/${dealId}/context`);
+    if (!dealResp.ok) throw new Error(`Deal fetch failed: ${dealResp.status}`);
+    const dealPayload = await dealResp.json();
+
+    renderDealSummary(dealPayload);
+
+    // Step 2: run the skill
+    const skillResp = await fetch("/api/skills/discovery-call-prep", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dealPayload }),
+    });
+    const skillData = await skillResp.json();
+    if (!skillResp.ok || !skillData.ok) {
+      throw new Error(skillData.error || "Skill failed");
+    }
+    lastOutput = skillData.output;
+    renderOutput(skillData.output);
+  } catch (err) {
+    output.innerHTML = `<div class="error"><strong>Error:</strong> ${err.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Run Discovery Call Prep";
+  }
+}
+
+function renderDealSummary(d) {
+  const summary = $("dealSummary");
+  summary.innerHTML = `
+    <strong>${d.prospect.name}</strong> · ${d.prospect.title} at ${d.prospect.company}
+    &nbsp;·&nbsp; ${d.account.industry} (${d.account.size})
+    &nbsp;·&nbsp; Stage: <strong>${d.deal.stage}</strong>
+    &nbsp;·&nbsp; Source: ${d.deal.source}
+    &nbsp;·&nbsp; ${d.interaction_history.length} prior interactions
+  `;
+  summary.style.display = "block";
+}
+
+function renderOutput(out) {
+  if (out.error) {
+    $("output").innerHTML = `<div class="error"><strong>Skill returned error:</strong> ${out.error}. Missing: ${(out.missing || []).join(", ")}</div>`;
+    return;
+  }
+
+  const tt = out.talk_track || {};
+  const questions = (tt.discovery_questions || []).map(q => `<li>${escapeHtml(q)}</li>`).join("");
+
+  const nextStep = out.recommended_next_step || {};
+
+  const html = `
+    <div class="cards">
+
+      <div class="card">
+        <h2>
+          Prep Brief
+          <button class="copy-btn" onclick="copyToClipboard('prep-brief')">Copy</button>
+        </h2>
+        <div class="content" id="prep-brief">${escapeHtml(out.prep_brief || "")}</div>
+      </div>
+
+      <div class="card">
+        <h2>
+          Talk Track
+          <button class="copy-btn" onclick="copyToClipboard('talk-track')">Copy</button>
+        </h2>
+        <div class="content" id="talk-track">
+          <strong>Opening (30s)</strong><br>${escapeHtml(tt.opening || "")}<br><br>
+          <strong>Context confirmation (2m)</strong><br>${escapeHtml(tt.context_confirmation || "")}<br><br>
+          <strong>Discovery questions</strong><ol>${questions}</ol>
+          <strong>Close (1m)</strong><br>${escapeHtml(tt.close || "")}
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>
+          Follow-up Email
+          <button class="copy-btn" onclick="copyEmail()">Copy</button>
+        </h2>
+        <div class="email-tabs">
+          <button class="${activeEmailVariant === 'strong' ? 'active' : ''}" onclick="switchEmail('strong')">Strong signal</button>
+          <button class="${activeEmailVariant === 'weak' ? 'active' : ''}" onclick="switchEmail('weak')">Weak signal</button>
+        </div>
+        <div class="content" id="email-content">
+          ${renderEmail(activeEmailVariant === 'strong' ? out.follow_up_email_strong : out.follow_up_email_weak)}
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Recommended Next Step</h2>
+        <div class="content">
+          <span class="next-step">${escapeHtml((nextStep.play || "").replace(/_/g, ' '))}</span>
+          <div style="margin-top: 8px;">${escapeHtml(nextStep.rationale || "")}</div>
+        </div>
+      </div>
+
+    </div>
+
+    ${out.confidence_notes ? `<div class="confidence-banner"><strong>Confidence notes:</strong> ${escapeHtml(out.confidence_notes)}</div>` : ""}
+  `;
+  $("output").innerHTML = html;
+}
+
+function renderEmail(email) {
+  if (!email) return "";
+  return `
+    <div class="subject-line">Subject: ${escapeHtml(email.subject || "")}</div>
+    ${escapeHtml(email.body || "")}
+  `;
+}
+
+function switchEmail(variant) {
+  activeEmailVariant = variant;
+  if (lastOutput) renderOutput(lastOutput);
+}
+
+function copyToClipboard(elementId) {
+  const el = document.getElementById(elementId);
+  navigator.clipboard.writeText(el.innerText);
+}
+
+function copyEmail() {
+  const email = activeEmailVariant === 'strong' ? lastOutput.follow_up_email_strong : lastOutput.follow_up_email_weak;
+  if (!email) return;
+  const text = `Subject: ${email.subject}\n\n${email.body}`;
+  navigator.clipboard.writeText(text);
+}
+
+function escapeHtml(s) {
+  if (s == null) return "";
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+</script>
+
+</body>
+</html>

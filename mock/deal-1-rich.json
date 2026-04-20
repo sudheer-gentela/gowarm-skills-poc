@@ -1,0 +1,70 @@
+{
+  "prospect": {
+    "name": "Priya Raghavan",
+    "title": "VP RevOps",
+    "company": "Lattice Signals",
+    "linkedin_url": "https://linkedin.com/in/priya-raghavan-example",
+    "email": "priya@latticesignals.example",
+    "tenure_in_role_months": 4
+  },
+  "account": {
+    "industry": "SaaS",
+    "size": "200-500",
+    "revenue_band": "$40M-$80M ARR",
+    "recent_signals": [
+      "Series C raised 3 months ago ($55M)",
+      "New CRO hired 2 months ago from Gong",
+      "Hiring spike in AE roles (12 open reqs)"
+    ]
+  },
+  "deal": {
+    "stage": "discovery_call",
+    "source": "inbound",
+    "playbook_id": "sales-saas-inbound-v3",
+    "created_at": "2026-04-08T14:22:00Z",
+    "amount": 72000,
+    "days_in_stage": 2
+  },
+  "interaction_history": [
+    {
+      "type": "email_received",
+      "timestamp": "2026-04-18T15:40:00Z",
+      "direction": "inbound",
+      "summary": "Priya replied confirming Monday 10am for discovery call. Mentioned: 'We're getting crushed on forecast accuracy — our CRO wants a 30% error reduction by end of Q2.'"
+    },
+    {
+      "type": "email_sent",
+      "timestamp": "2026-04-18T12:10:00Z",
+      "direction": "outbound",
+      "summary": "Rep proposed three time slots for discovery call."
+    },
+    {
+      "type": "email_received",
+      "timestamp": "2026-04-17T21:05:00Z",
+      "direction": "inbound",
+      "summary": "Priya asked if we integrate with Salesforce and Gong. Asked about pricing for ~50 AEs."
+    },
+    {
+      "type": "linkedin",
+      "timestamp": "2026-04-15T09:30:00Z",
+      "direction": "inbound",
+      "summary": "Priya connected with rep on LinkedIn. Her recent post: 'Forecast accuracy is the #1 thing keeping me up at night.'"
+    },
+    {
+      "type": "email_received",
+      "timestamp": "2026-04-14T16:00:00Z",
+      "direction": "inbound",
+      "summary": "Priya submitted demo request form. Filled out: 'Team size: ~50 AEs. Current stack: Salesforce + Gong + Outreach. Biggest challenge: forecast roll-up accuracy across segments.'"
+    }
+  ],
+  "meddpicc": {
+    "metrics": "30% reduction in forecast error by end of Q2 (stated by Priya)",
+    "economic_buyer": null,
+    "decision_criteria": null,
+    "decision_process": null,
+    "paper_process": null,
+    "identified_pain": "Forecast accuracy problem — CRO mandate",
+    "champion": null,
+    "competition": null
+  }
+}
