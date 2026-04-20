@@ -24,6 +24,19 @@ The caller passes a GoWarm deal payload. The expected shape is documented in `sc
 - `interaction_history` — array of the last 10 touches
 - `meddpicc` — object with known qualification data (often sparse)
 
+The caller may also pass a **methodology** parameter selecting the sales-methodology lens to apply (e.g. `meddic`, `challenger`). If provided, a corresponding file from the `methodologies/` folder will be included in the bundled skill files. Follow the instructions in that methodology file *in addition to* the base execution steps below — the methodology shapes HOW each step is executed, not WHAT the steps are.
+
+If no methodology is provided, run the skill in "default" mode — use the base execution steps and templates without the methodology-specific shaping.
+
+## Methodology precedence
+
+When a methodology file is present:
+
+1. The methodology's guidance on **opening tone, question selection, email framing, and close** takes precedence over the generic guidance in `templates/*.md`.
+2. The methodology's **recommended_next_step logic** takes precedence over the generic logic (e.g., MEDDIC disqualifies more aggressively; Challenger pushes for multi_thread more aggressively).
+3. The base guardrails (no hallucination, placeholder usage in emails, no leaking system context into talk tracks) apply universally and are never overridden by a methodology.
+4. The methodology file may include a "When this methodology is the wrong lens" section — if you detect a mismatch, note it in `confidence_notes` rather than refusing to produce output.
+
 ## Handling sparse payloads
 
 **Do NOT bail out on missing fields.** Even a very sparse payload has useful signal for a prep brief — at minimum, the company, industry, and stage tell you *how* to approach the call. Return a full set of deliverables in every case. Use `confidence_notes` to flag what's missing or uncertain.

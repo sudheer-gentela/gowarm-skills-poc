@@ -18,9 +18,7 @@
     --success: #059669;
     --warning: #D97706;
   }
-
   * { box-sizing: border-box; }
-
   body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -28,7 +26,6 @@
     color: var(--text);
     line-height: 1.5;
   }
-
   header {
     background: var(--navy);
     color: white;
@@ -37,14 +34,12 @@
     align-items: center;
     justify-content: space-between;
   }
-
   header h1 {
     margin: 0;
     font-size: 18px;
     font-weight: 600;
     letter-spacing: 0.2px;
   }
-
   header .badge {
     background: var(--ember);
     padding: 4px 10px;
@@ -54,11 +49,46 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-
   main {
     max-width: 1100px;
     margin: 0 auto;
     padding: 24px 32px 64px;
+  }
+
+  /* Session usage banner */
+  .session-banner {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--ember);
+    border-radius: 6px;
+    padding: 12px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 13px;
+  }
+  .session-banner .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .session-banner .stat-label {
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  .session-banner .stat-value {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .session-banner .stat-value.cost {
+    color: var(--ember);
   }
 
   .control-bar {
@@ -72,13 +102,11 @@
     align-items: center;
     flex-wrap: wrap;
   }
-
   .control-bar label {
     font-size: 13px;
     color: var(--text-muted);
     font-weight: 500;
   }
-
   .control-bar select,
   .control-bar input[type="text"] {
     padding: 8px 12px;
@@ -86,13 +114,23 @@
     border-radius: 6px;
     background: white;
     font-size: 14px;
-    min-width: 240px;
+    min-width: 220px;
   }
-
-  .control-bar input[type="text"]:focus {
+  .control-bar input[type="text"]:focus,
+  .control-bar select:focus {
     outline: none;
     border-color: var(--ember);
     box-shadow: 0 0 0 3px rgba(232, 99, 10, 0.1);
+  }
+  .methodology-help {
+    width: 100%;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    padding: 8px 12px;
+    background: #F9FAFB;
+    border-radius: 4px;
+    border-left: 2px solid var(--border);
   }
 
   button {
@@ -106,7 +144,6 @@
     cursor: pointer;
     transition: background 0.15s;
   }
-
   button:hover:not(:disabled) { background: var(--ember-hover); }
   button:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -116,19 +153,47 @@
     border-left: 3px solid var(--navy);
     border-radius: 6px;
     padding: 16px 20px;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
     font-size: 13px;
     color: var(--text-muted);
   }
-
   .deal-summary strong { color: var(--text); }
+
+  /* Per-run usage card */
+  .run-usage {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--success);
+    border-radius: 6px;
+    padding: 12px 20px;
+    margin-bottom: 24px;
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .run-usage .label { font-weight: 600; color: var(--text); text-transform: uppercase; letter-spacing: 0.4px; font-size: 11px; }
+  .run-usage .chip { font-variant-numeric: tabular-nums; color: var(--text); }
+
+  .methodology-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .methodology-pill.default   { background: #E5E7EB; color: #374151; }
+  .methodology-pill.meddic    { background: #DBEAFE; color: #1E40AF; }
+  .methodology-pill.challenger { background: #FEF3C7; color: #92400E; }
 
   .cards {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
   }
-
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -137,7 +202,6 @@
     display: flex;
     flex-direction: column;
   }
-
   .card h2 {
     margin: 0 0 14px;
     font-size: 13px;
@@ -149,7 +213,6 @@
     justify-content: space-between;
     align-items: center;
   }
-
   .card .copy-btn {
     background: transparent;
     color: var(--text-muted);
@@ -160,15 +223,12 @@
     text-transform: none;
     letter-spacing: 0;
   }
-
   .card .copy-btn:hover { background: var(--bg); color: var(--text); }
-
   .card .content {
     font-size: 14px;
     color: var(--text);
     white-space: pre-wrap;
   }
-
   .card .content .subject-line {
     font-weight: 600;
     color: var(--navy);
@@ -176,17 +236,14 @@
     padding-bottom: 8px;
     border-bottom: 1px dashed var(--border);
   }
-
   .card .content ol, .card .content ul { padding-left: 20px; margin: 8px 0; }
   .card .content li { margin-bottom: 6px; }
-  .card .content .listening-for { color: var(--text-muted); font-size: 12px; font-style: italic; }
 
   .email-tabs {
     display: flex;
     gap: 8px;
     margin-bottom: 12px;
   }
-
   .email-tabs button {
     background: transparent;
     color: var(--text-muted);
@@ -197,7 +254,6 @@
     text-transform: none;
     letter-spacing: 0;
   }
-
   .email-tabs button.active {
     background: var(--navy);
     color: white;
@@ -233,7 +289,6 @@
     color: var(--text-muted);
     font-size: 14px;
   }
-
   .loading .spinner {
     display: inline-block;
     width: 20px;
@@ -245,7 +300,6 @@
     margin-right: 10px;
     vertical-align: middle;
   }
-
   @keyframes spin { to { transform: rotate(360deg); } }
 
   .error {
@@ -271,13 +325,49 @@
 
 <main>
 
+  <div id="sessionBanner" class="session-banner" style="display:none;">
+    <div class="stat">
+      <span class="stat-label">Session runs</span>
+      <span class="stat-value" id="sess-calls">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Input tokens</span>
+      <span class="stat-value" id="sess-input">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Output tokens</span>
+      <span class="stat-value" id="sess-output">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Total tokens</span>
+      <span class="stat-value" id="sess-total">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Estimated cost</span>
+      <span class="stat-value cost" id="sess-cost">$0.0000</span>
+    </div>
+  </div>
+
   <div class="control-bar">
     <label for="dealInput">Deal ID:</label>
-    <input id="dealInput" type="text" placeholder="e.g. 1-rich or a GoWarm deal ID" value="1-rich" />
+    <input id="dealInput" type="text" placeholder="e.g. 113" value="113" />
+
+    <label for="methodologySelect">Methodology:</label>
+    <select id="methodologySelect">
+      <option value="">Default (no methodology)</option>
+      <option value="meddic">MEDDIC — qualification-heavy</option>
+      <option value="challenger">Challenger — teach & reframe</option>
+    </select>
+
     <button id="runBtn">Run Discovery Call Prep</button>
+
+    <div class="methodology-help" id="methodologyHelp">
+      No methodology selected — runs with the base skill defaults.
+    </div>
   </div>
 
   <div id="dealSummary" class="deal-summary" style="display:none;"></div>
+  <div id="runUsage" class="run-usage" style="display:none;"></div>
   <div id="output"></div>
 
 </main>
@@ -287,41 +377,90 @@ const $ = (id) => document.getElementById(id);
 let activeEmailVariant = "strong";
 let lastOutput = null;
 
+const METHODOLOGY_DESCRIPTIONS = {
+  "":           "No methodology selected — runs with the base skill defaults.",
+  "meddic":     "MEDDIC: treats the call as a qualification exercise. Questions target specific MEDDIC field gaps. Recommended next steps skew toward multi_thread or disqualify.",
+  "challenger": "Challenger: rep leads with a reframe and teaches the prospect something non-obvious. Questions create constructive tension. Close takes control.",
+};
+
 $("runBtn").addEventListener("click", runSkill);
+$("methodologySelect").addEventListener("change", (e) => {
+  $("methodologyHelp").textContent = METHODOLOGY_DESCRIPTIONS[e.target.value] || METHODOLOGY_DESCRIPTIONS[""];
+});
+
+// Load session totals on page load
+loadSessionTotals();
+
+async function loadSessionTotals() {
+  try {
+    const r = await fetch("/api/usage");
+    if (!r.ok) return;
+    const data = await r.json();
+    if (data.session_totals && data.session_totals.call_count > 0) {
+      renderSessionTotals(data.session_totals);
+    }
+  } catch (e) { /* ignore */ }
+}
+
+function renderSessionTotals(totals) {
+  $("sessionBanner").style.display = "flex";
+  $("sess-calls").textContent  = totals.call_count;
+  $("sess-input").textContent  = fmtNum(totals.input_tokens);
+  $("sess-output").textContent = fmtNum(totals.output_tokens);
+  $("sess-total").textContent  = fmtNum(totals.total_tokens);
+  $("sess-cost").textContent   = "$" + totals.estimated_cost_usd.toFixed(4);
+}
+
+function fmtNum(n) {
+  if (n == null) return "0";
+  return n.toLocaleString();
+}
 
 async function runSkill() {
   const dealId = $("dealInput").value.trim();
+  const methodology = $("methodologySelect").value;
+
   if (!dealId) {
     $("output").innerHTML = `<div class="error">Enter a deal ID to run the skill.</div>`;
     return;
   }
+
   const btn = $("runBtn");
   const output = $("output");
   btn.disabled = true;
   btn.textContent = "Running...";
   output.innerHTML = `<div class="loading"><span class="spinner"></span>Running skill against deal payload...</div>`;
   $("dealSummary").style.display = "none";
+  $("runUsage").style.display = "none";
 
   try {
-    // Step 1: fetch the deal payload
+    // Fetch deal payload
     const dealResp = await fetch(`/api/deals/${dealId}/context`);
-    if (!dealResp.ok) throw new Error(`Deal fetch failed: ${dealResp.status}`);
+    if (!dealResp.ok) {
+      const errBody = await dealResp.json().catch(() => ({}));
+      throw new Error(`Deal fetch failed: ${dealResp.status} ${errBody.error || ""}`);
+    }
     const dealPayload = await dealResp.json();
-
     renderDealSummary(dealPayload);
 
-    // Step 2: run the skill
+    // Run skill
     const skillResp = await fetch("/api/skills/discovery-call-prep", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ dealPayload }),
+      body: JSON.stringify({ dealPayload, methodology: methodology || undefined }),
     });
     const skillData = await skillResp.json();
-    if (!skillResp.ok || !skillData.ok) {
-      throw new Error(skillData.error || "Skill failed");
+
+    if (skillResp.ok && skillData.ok) {
+      lastOutput = skillData.output;
+      renderRunUsage(skillData.usage, skillData.methodology);
+      renderOutput(skillData.output);
+      if (skillData.session_totals) renderSessionTotals(skillData.session_totals);
+    } else {
+      // If skill output failed to parse, we may still have a usage entry
+      if (skillData.usage) renderRunUsage(skillData.usage, methodology);
+      output.innerHTML = `<div class="error"><strong>Error:</strong> ${skillData.error || "unknown"}${skillData.raw ? `<br><br><em>Raw output (first 2k chars):</em><pre style="white-space:pre-wrap;font-size:12px;">${escapeHtml(skillData.raw)}</pre>` : ""}</div>`;
     }
-    lastOutput = skillData.output;
-    renderOutput(skillData.output);
   } catch (err) {
     output.innerHTML = `<div class="error"><strong>Error:</strong> ${err.message}</div>`;
   } finally {
@@ -332,25 +471,44 @@ async function runSkill() {
 
 function renderDealSummary(d) {
   const summary = $("dealSummary");
+  const interactionCount = (d.interaction_history || []).length;
+  const prospectName = d.prospect?.name || "Unknown";
   summary.innerHTML = `
-    <strong>${d.prospect.name}</strong> · ${d.prospect.title} at ${d.prospect.company}
-    &nbsp;·&nbsp; ${d.account.industry} (${d.account.size})
-    &nbsp;·&nbsp; Stage: <strong>${d.deal.stage}</strong>
-    &nbsp;·&nbsp; Source: ${d.deal.source}
-    &nbsp;·&nbsp; ${d.interaction_history.length} prior interactions
+    <strong>${escapeHtml(prospectName)}</strong> · ${escapeHtml(d.prospect?.title || "—")} at ${escapeHtml(d.prospect?.company || d.account?.name || "—")}
+    &nbsp;·&nbsp; ${escapeHtml(d.account?.industry || "—")} (${escapeHtml(d.account?.size || "?")})
+    &nbsp;·&nbsp; Stage: <strong>${escapeHtml(d.deal?.stage || "?")}</strong>
+    &nbsp;·&nbsp; Source: ${escapeHtml(d.deal?.source || "—")}
+    &nbsp;·&nbsp; ${interactionCount} prior interactions
   `;
   summary.style.display = "block";
 }
 
+function renderRunUsage(usage, methodology) {
+  if (!usage) return;
+  const box = $("runUsage");
+  const methClass = (methodology || "default").toLowerCase();
+  const methLabel = (methodology || "default").toUpperCase();
+  box.innerHTML = `
+    <span class="label">This run</span>
+    <span class="chip"><span class="methodology-pill ${methClass}">${methLabel}</span></span>
+    <span class="chip">Model: <strong>${escapeHtml(usage.model || "?")}</strong></span>
+    <span class="chip">Input: <strong>${fmtNum(usage.input_tokens)}</strong></span>
+    <span class="chip">Output: <strong>${fmtNum(usage.output_tokens)}</strong></span>
+    <span class="chip">Total: <strong>${fmtNum(usage.total_tokens)}</strong></span>
+    <span class="chip">Cost: <strong style="color:var(--ember)">$${(usage.estimated_cost_usd || 0).toFixed(5)}</strong></span>
+    <span class="chip">Latency: <strong>${usage.latency_ms ? (usage.latency_ms / 1000).toFixed(1) + "s" : "?"}</strong></span>
+  `;
+  box.style.display = "flex";
+}
+
 function renderOutput(out) {
   if (out.error) {
-    $("output").innerHTML = `<div class="error"><strong>Skill returned error:</strong> ${out.error}. Missing: ${(out.missing || []).join(", ")}</div>`;
+    $("output").innerHTML = `<div class="error"><strong>Skill returned error:</strong> ${escapeHtml(out.error)}. Missing: ${escapeHtml((out.missing || []).join(", "))}</div>`;
     return;
   }
 
   const tt = out.talk_track || {};
   const questions = (tt.discovery_questions || []).map(q => `<li>${escapeHtml(q)}</li>`).join("");
-
   const nextStep = out.recommended_next_step || {};
 
   const html = `
@@ -427,8 +585,7 @@ function copyToClipboard(elementId) {
 function copyEmail() {
   const email = activeEmailVariant === 'strong' ? lastOutput.follow_up_email_strong : lastOutput.follow_up_email_weak;
   if (!email) return;
-  const text = `Subject: ${email.subject}\n\n${email.body}`;
-  navigator.clipboard.writeText(text);
+  navigator.clipboard.writeText(`Subject: ${email.subject}\n\n${email.body}`);
 }
 
 function escapeHtml(s) {
