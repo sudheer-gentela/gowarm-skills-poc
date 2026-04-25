@@ -1,0 +1,86 @@
+{
+  "prospect": {
+    "name": "Tomás Villanueva",
+    "title": "VP Sales",
+    "company": "Kelstern Labs",
+    "linkedin_url": "https://linkedin.com/in/tomas-villanueva-example",
+    "seniority_level": "vp",
+    "function": "sales",
+    "tenure_in_role_months": null,
+    "seat_count_under": null,
+    "headline": "VP Sales at Kelstern",
+    "about": null,
+    "experience": [
+      {
+        "title": "VP Sales",
+        "company": "Kelstern Labs",
+        "start_date": null,
+        "end_date": null,
+        "duration_months": null,
+        "description": null
+      }
+    ],
+    "education": [],
+    "skills_listed": []
+  },
+  "account": {
+    "name": "Kelstern Labs",
+    "industry": "SaaS",
+    "sub_industry": null,
+    "size": "200-500",
+    "revenue_band": null,
+    "growth_stage": null,
+    "tech_stack": [],
+    "website": "https://kelsternlabs.example",
+    "one_line_description": null
+  },
+  "icp": {
+    "fit_score": 62,
+    "matched_criteria": [
+      "Industry: B2B SaaS",
+      "Size: 200-1000 employees",
+      "Persona: VP Sales or RevOps"
+    ],
+    "missed_criteria": [
+      "Tech stack: unknown — cannot confirm Salesforce-based CRM",
+      "Growth stage: unknown"
+    ],
+    "persona_match": "vp_sales_growth_saas"
+  },
+  "signals": {
+    "account_events": [],
+    "linkedin_activity": {
+      "posts": [],
+      "comments": [],
+      "reactions": []
+    }
+  },
+  "engagement_history": [],
+  "sequence_state": null,
+  "reply_payload": null,
+  "org_context": {
+    "rep": {
+      "name": "Sudheer Gentela",
+      "title": "Founder, GoWarmCRM",
+      "email_signature": "Sudheer\nFounder, GoWarmCRM\ngowarmcrm.com"
+    },
+    "product": {
+      "name": "GoWarmCRM",
+      "one_liner": "A sales execution platform that sits on top of your CRM and operationalizes your playbooks — so you can see whether reps are actually running them, not just whether deals are closing.",
+      "category": "sales_execution"
+    },
+    "value_props": [
+      "Closes the execution gap between defined sales process and what reps actually do.",
+      "Surfaces deal-level actions from your playbook, not just stage transitions.",
+      "Works with your existing CRM — Salesforce, HubSpot, Pipedrive — rather than replacing it.",
+      "Gives sales leaders leading indicators on execution quality, not just lagging indicators on pipeline."
+    ],
+    "target_personas": [
+      "VP Sales at growth-stage B2B SaaS",
+      "RevOps leaders rebuilding playbook infrastructure",
+      "CROs inheriting a sales team and trying to diagnose execution gaps"
+    ],
+    "case_study_summaries": [],
+    "competitors": ["Scratchpad", "People.ai"]
+  }
+}

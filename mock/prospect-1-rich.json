@@ -1,0 +1,176 @@
+{
+  "prospect": {
+    "name": "Maya Krishnan",
+    "title": "VP Sales",
+    "company": "Ferrovia Analytics",
+    "linkedin_url": "https://linkedin.com/in/maya-krishnan-example",
+    "email": "maya@ferroviaanalytics.example",
+    "seniority_level": "vp",
+    "function": "sales",
+    "tenure_in_role_months": 7,
+    "seat_count_under": 34,
+    "headline": "VP Sales at Ferrovia | Building the bridge between what sales leaders plan and what reps actually execute",
+    "about": "I've spent the last decade watching good sales strategies die in the last mile — between what the leadership team decides and what lands in a rep's Monday morning. At Ferrovia I'm trying to rebuild our go-to-market around execution, not just forecasting. Always happy to compare notes with other sales leaders wrestling with the same thing.",
+    "experience": [
+      {
+        "title": "VP Sales",
+        "company": "Ferrovia Analytics",
+        "start_date": "2025-09-15",
+        "end_date": null,
+        "duration_months": 7,
+        "description": "Leading GTM for a 34-person sales team across NAM and EMEA. Rebuilding playbook infrastructure and deal execution standards."
+      },
+      {
+        "title": "Sr. Director of Sales",
+        "company": "Quorum Metrics",
+        "start_date": "2022-03-01",
+        "end_date": "2025-09-01",
+        "duration_months": 42,
+        "description": "Scaled enterprise sales from $8M to $34M ARR. Built out mid-market motion from zero to $9M."
+      },
+      {
+        "title": "Director of Enterprise Sales",
+        "company": "Quorum Metrics",
+        "start_date": "2020-06-01",
+        "end_date": "2022-03-01",
+        "duration_months": 21,
+        "description": null
+      },
+      {
+        "title": "Enterprise Account Executive",
+        "company": "Pendelton Cloud",
+        "start_date": "2016-08-01",
+        "end_date": "2020-05-01",
+        "duration_months": 45,
+        "description": null
+      }
+    ],
+    "education": [
+      {
+        "school": "University of Michigan",
+        "degree": "BS",
+        "field_of_study": "Industrial Engineering",
+        "start_year": 2010,
+        "end_year": 2014
+      }
+    ],
+    "skills_listed": ["Enterprise Sales", "Sales Management", "SaaS", "Forecasting", "Salesforce", "Team Building"]
+  },
+  "account": {
+    "name": "Ferrovia Analytics",
+    "industry": "SaaS",
+    "sub_industry": "Supply Chain Analytics",
+    "size": "200-500",
+    "revenue_band": "$30M-$50M ARR",
+    "growth_stage": "growth",
+    "tech_stack": [
+      { "tool": "Salesforce", "category": "crm", "source": "job_posting" },
+      { "tool": "Outreach", "category": "sales_engagement", "source": "builtwith" },
+      { "tool": "Gong", "category": "conversation_intelligence", "source": "job_posting" },
+      { "tool": "Clari", "category": "forecasting", "source": "linkedin_mention" }
+    ],
+    "website": "https://ferroviaanalytics.example",
+    "one_line_description": "Supply chain visibility platform for mid-market manufacturers and logistics operators."
+  },
+  "icp": {
+    "fit_score": 87,
+    "matched_criteria": [
+      "Industry: B2B SaaS",
+      "Size: 200-1000 employees",
+      "Persona: VP Sales or RevOps",
+      "Tech stack: Salesforce-based CRM",
+      "Growth stage: post-Series B"
+    ],
+    "missed_criteria": [],
+    "persona_match": "vp_sales_growth_saas"
+  },
+  "signals": {
+    "account_events": [
+      {
+        "type": "leadership_change",
+        "description": "New CRO hired 6 weeks ago (Devin Osei, previously VP Sales at Formica Data).",
+        "source": "company_blog",
+        "source_url": "https://ferroviaanalytics.example/blog/welcoming-devin",
+        "timestamp": "2026-03-12T14:00:00Z"
+      },
+      {
+        "type": "funding",
+        "description": "Series B extension raised ($22M, led by Emergence Capital).",
+        "source": "TechCrunch",
+        "source_url": "https://techcrunch.example/ferrovia-series-b-extension",
+        "timestamp": "2026-01-28T10:30:00Z"
+      },
+      {
+        "type": "hiring_surge",
+        "description": "18 open AE and SDR requisitions posted in last 60 days.",
+        "source": "job_board",
+        "source_url": "https://ferroviaanalytics.example/careers",
+        "timestamp": "2026-04-10T09:00:00Z"
+      }
+    ],
+    "linkedin_activity": {
+      "posts": [
+        {
+          "id": "post_9f2a1c",
+          "posted_at": "2026-04-19T15:22:00Z",
+          "text": "Three months into building out our sales playbook and the thing nobody warns you about: writing the playbook is 10% of the work. Getting reps to actually run it is the other 90%. Our forecast accuracy is still swinging by 20+ points quarter to quarter because what's in Salesforce isn't what's happening in the field. Curious how other sales leaders are closing that gap — genuinely asking, not pitching anything.",
+          "engagement_count": 147,
+          "topic_tags": ["playbook", "execution", "forecasting", "revops"]
+        },
+        {
+          "id": "post_7b4e0d",
+          "posted_at": "2026-03-24T11:05:00Z",
+          "text": "Hot take: the reason most sales playbooks fail isn't because the playbook is wrong. It's because nobody can tell you on a Tuesday afternoon whether a deal is following it or not. We're drowning in process documentation and starving for execution visibility.",
+          "engagement_count": 289,
+          "topic_tags": ["playbook", "execution"]
+        }
+      ],
+      "comments": [
+        {
+          "id": "cmt_2e6a88",
+          "commented_at": "2026-04-11T17:40:00Z",
+          "text": "This resonates. We went through exactly this last year. The missing piece for us was real-time signal on whether reps were actually doing the things we said they should — not just tracking outcomes after the fact.",
+          "parent_post_summary": "A post by a RevOps leader arguing that most sales metrics are lagging indicators and you need leading indicators to course-correct.",
+          "parent_author": "Dana Lin"
+        }
+      ],
+      "reactions": [
+        {
+          "id": "rxn_5c01aa",
+          "reacted_at": "2026-04-15T09:00:00Z",
+          "reaction_type": "insightful",
+          "parent_post_summary": "A post about the cost of CRM data hygiene and why RevOps teams burn out trying to fix it.",
+          "parent_author": "Karim Haddad"
+        }
+      ]
+    }
+  },
+  "engagement_history": [],
+  "sequence_state": null,
+  "reply_payload": null,
+  "org_context": {
+    "rep": {
+      "name": "Sudheer Gentela",
+      "title": "Founder, GoWarmCRM",
+      "email_signature": "Sudheer\nFounder, GoWarmCRM\ngowarmcrm.com"
+    },
+    "product": {
+      "name": "GoWarmCRM",
+      "one_liner": "A sales execution platform that sits on top of your CRM and operationalizes your playbooks — so you can see whether reps are actually running them, not just whether deals are closing.",
+      "category": "sales_execution"
+    },
+    "value_props": [
+      "Closes the execution gap between defined sales process and what reps actually do.",
+      "Surfaces deal-level actions from your playbook, not just stage transitions.",
+      "Works with your existing CRM — Salesforce, HubSpot, Pipedrive — rather than replacing it.",
+      "Gives sales leaders leading indicators on execution quality, not just lagging indicators on pipeline."
+    ],
+    "target_personas": [
+      "VP Sales at growth-stage B2B SaaS",
+      "RevOps leaders rebuilding playbook infrastructure",
+      "CROs inheriting a sales team and trying to diagnose execution gaps"
+    ],
+    "case_study_summaries": [],
+    "competitors": ["Scratchpad", "People.ai"]
+  }
+}
