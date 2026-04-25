@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoWarm — Outreach Personalization</title>
+<style>
+  :root {
+    --ember: #E8630A;
+    --ember-hover: #CC5507;
+    --navy: #1A3A5C;
+    --navy-light: #2A4D73;
+    --bg: #F7F8FA;
+    --surface: #FFFFFF;
+    --border: #E4E7EB;
+    --text: #1F2937;
+    --text-muted: #6B7280;
+    --success: #059669;
+    --warning: #D97706;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  header {
+    background: var(--navy);
+    color: white;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+  header .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  header .nav-links {
+    display: flex;
+    gap: 4px;
+    font-size: 13px;
+  }
+  header .nav-links a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: background 0.1s;
+  }
+  header .nav-links a:hover {
+    background: rgba(255,255,255,0.08);
+    color: white;
+  }
+  header .nav-links a.active {
+    background: rgba(255,255,255,0.12);
+    color: white;
+  }
+  header .badge {
+    background: var(--ember);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 32px 64px;
+  }
+
+  /* Session usage banner */
+  .session-banner {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--ember);
+    border-radius: 6px;
+    padding: 12px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 13px;
+  }
+  .session-banner .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .session-banner .stat-label {
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  .session-banner .stat-value {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .session-banner .stat-value.cost {
+    color: var(--ember);
+  }
+
+  .control-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .control-bar label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .control-bar select,
+  .control-bar input[type="text"] {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: white;
+    font-size: 14px;
+    min-width: 220px;
+  }
+  .control-bar input[type="text"]:focus,
+  .control-bar select:focus {
+    outline: none;
+    border-color: var(--ember);
+    box-shadow: 0 0 0 3px rgba(232, 99, 10, 0.1);
+  }
+  button {
+    padding: 8px 18px;
+    background: var(--ember);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover:not(:disabled) { background: var(--ember-hover); }
+  button:disabled { opacity: 0.6; cursor: wait; }
+
+  /* Prospect summary strip */
+  .prospect-summary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 20px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .prospect-summary .fit {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 8px;
+    background: #ECFDF5;
+    color: #065F46;
+  }
+  .prospect-summary .fit.low {
+    background: #FEF3C7;
+    color: #78350F;
+  }
+  .prospect-summary .fit.poor {
+    background: #FEE2E2;
+    color: #991B1B;
+  }
+
+  /* Per-run usage */
+  .run-usage {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 20px;
+    margin-bottom: 16px;
+    font-size: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+  }
+  .run-usage .label {
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .run-usage .chip {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  /* Cards */
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+  }
+  .card.full-width { grid-column: 1 / -1; }
+  .card h2 {
+    margin: 0 0 14px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--navy);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card .content {
+    font-size: 14px;
+    white-space: pre-wrap;
+  }
+  .copy-btn {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .copy-btn:hover { background: var(--bg); color: var(--text); }
+  .copy-btn.copied { background: var(--success); color: white; border-color: var(--success); }
+
+  /* Email-specific styling */
+  .email-meta {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    font-size: 13px;
+  }
+  .email-meta .meta-row {
+    display: flex;
+    gap: 8px;
+    padding: 4px 0;
+  }
+  .email-meta .meta-label {
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    min-width: 70px;
+    padding-top: 3px;
+  }
+  .email-meta .meta-value {
+    flex: 1;
+    color: var(--text);
+  }
+  .email-meta .word-count {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+  }
+  .email-meta .word-count.over {
+    color: var(--warning);
+    font-weight: 600;
+  }
+
+  .email-body {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  .linkedin-note {
+    background: #F0F4FA;
+    border: 1px solid #C7D5E8;
+    border-radius: 6px;
+    padding: 14px;
+    font-size: 14px;
+    line-height: 1.55;
+    color: #1A3A5C;
+  }
+  .linkedin-note .char-count {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed #C7D5E8;
+  }
+  .linkedin-note .char-count.over {
+    color: var(--warning);
+    font-weight: 600;
+  }
+
+  /* Hook chip */
+  .hook-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .hook-summary .hook-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .hook-pill {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .hook-pill.prospect_post   { background: #DCFCE7; color: #14532D; }
+  .hook-pill.prospect_comment{ background: #DBEAFE; color: #1E3A8A; }
+  .hook-pill.account_event   { background: #FEF3C7; color: #78350F; }
+  .hook-pill.tech_stack      { background: #F3E8FF; color: #581C87; }
+  .hook-pill.role_curiosity  { background: #F3F4F6; color: #374151; }
+  .hook-pill.none_available  { background: #FEE2E2; color: #991B1B; }
+  .hook-summary .signal-id {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .rationale,
+  .confidence-notes {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text);
+  }
+  .confidence-notes {
+    background: #FEFCE8;
+    border-left: 3px solid var(--warning);
+    padding: 12px 14px;
+    border-radius: 4px;
+    color: #78350F;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 48px;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+  .loading .spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--ember);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error {
+    background: #FEE2E2;
+    border-left: 3px solid #DC2626;
+    padding: 16px;
+    border-radius: 4px;
+    color: #7F1D1D;
+    font-size: 14px;
+  }
+
+  @media (max-width: 800px) {
+    .cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>GoWarm Sales Execution</h1>
+  <div class="header-right">
+    <nav class="nav-links">
+      <a href="/">Deal skills</a>
+      <a href="/prospecting.html" class="active">Prospect skills</a>
+    </nav>
+    <span class="badge">Skill: Outreach Personalization</span>
+  </div>
+</header>
+
+<main>
+
+  <div id="sessionBanner" class="session-banner" style="display:none;">
+    <div class="stat">
+      <span class="stat-label">Session runs</span>
+      <span class="stat-value" id="sess-calls">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Input tokens</span>
+      <span class="stat-value" id="sess-input">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Output tokens</span>
+      <span class="stat-value" id="sess-output">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Total tokens</span>
+      <span class="stat-value" id="sess-total">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Estimated cost</span>
+      <span class="stat-value cost" id="sess-cost">$0.0000</span>
+    </div>
+  </div>
+
+  <div class="control-bar">
+    <label for="prospectInput">Prospect ID:</label>
+    <input id="prospectInput" type="text" placeholder="e.g. 1-rich" value="1-rich" />
+
+    <button id="runBtn">Run Outreach Personalization</button>
+
+    <div style="width:100%; font-size:12px; color:var(--text-muted); margin-top:4px; padding:8px 12px; background:var(--bg); border-radius:6px;">
+      Try <strong>1-rich</strong> for a strong-signal prospect (Maya Krishnan, VP Sales at Ferrovia) or <strong>2-sparse</strong> for the failure-mode test (Tomás Villanueva, almost no signals).
+    </div>
+  </div>
+
+  <div id="prospectSummary" class="prospect-summary" style="display:none;"></div>
+  <div id="runUsage" class="run-usage" style="display:none;"></div>
+  <div id="output"></div>
+
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let lastOutput = null;
+
+$("runBtn").addEventListener("click", runSkill);
+
+// Load session totals on page load
+loadSessionTotals();
+
+async function loadSessionTotals() {
+  try {
+    const r = await fetch("/api/usage");
+    if (!r.ok) return;
+    const data = await r.json();
+    if (data.session_totals && data.session_totals.call_count > 0) {
+      renderSessionTotals(data.session_totals);
+    }
+  } catch (e) { /* ignore */ }
+}
+
+function renderSessionTotals(totals) {
+  $("sessionBanner").style.display = "flex";
+  $("sess-calls").textContent  = totals.call_count;
+  $("sess-input").textContent  = fmtNum(totals.input_tokens);
+  $("sess-output").textContent = fmtNum(totals.output_tokens);
+  $("sess-total").textContent  = fmtNum(totals.total_tokens);
+  $("sess-cost").textContent   = "$" + totals.estimated_cost_usd.toFixed(4);
+}
+
+function fmtNum(n) {
+  if (n == null) return "0";
+  return n.toLocaleString();
+}
+
+async function runSkill() {
+  const prospectId = $("prospectInput").value.trim();
+
+  if (!prospectId) {
+    $("output").innerHTML = `<div class="error">Enter a prospect ID to run the skill.</div>`;
+    return;
+  }
+
+  const btn = $("runBtn");
+  const output = $("output");
+  btn.disabled = true;
+  btn.textContent = "Running...";
+  output.innerHTML = `<div class="loading"><span class="spinner"></span>Running skill against prospect payload...</div>`;
+  $("prospectSummary").style.display = "none";
+  $("runUsage").style.display = "none";
+
+  try {
+    // Fetch prospect payload
+    const prospectResp = await fetch(`/api/prospects/${prospectId}/context`);
+    if (!prospectResp.ok) {
+      const errBody = await prospectResp.json().catch(() => ({}));
+      throw new Error(`Prospect fetch failed: ${prospectResp.status} ${errBody.error || ""}`);
+    }
+    const prospectPayload = await prospectResp.json();
+    renderProspectSummary(prospectPayload);
+
+    // Run skill
+    const skillResp = await fetch("/api/skills/outreach-personalization", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prospectPayload }),
+    });
+    const skillData = await skillResp.json();
+
+    if (skillResp.ok && skillData.ok) {
+      lastOutput = skillData.output;
+      renderRunUsage(skillData.usage);
+      renderOutput(skillData.output);
+      if (skillData.session_totals) renderSessionTotals(skillData.session_totals);
+    } else {
+      if (skillData.usage) renderRunUsage(skillData.usage);
+      output.innerHTML = `<div class="error"><strong>Error:</strong> ${skillData.error || "unknown"}${skillData.raw ? `<br><br><em>Raw output (first 2k chars):</em><pre style="white-space:pre-wrap;font-size:12px;">${escapeHtml(skillData.raw)}</pre>` : ""}</div>`;
+    }
+  } catch (err) {
+    output.innerHTML = `<div class="error"><strong>Error:</strong> ${err.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Run Outreach Personalization";
+  }
+}
+
+function renderProspectSummary(p) {
+  const summary = $("prospectSummary");
+  const fit = p.icp?.fit_score ?? 0;
+  let fitClass = "fit";
+  if (fit < 60) fitClass = "fit poor";
+  else if (fit < 75) fitClass = "fit low";
+
+  const accountEvents = (p.signals?.account_events || []).length;
+  const posts = (p.signals?.linkedin_activity?.posts || []).length;
+  const comments = (p.signals?.linkedin_activity?.comments || []).length;
+  const reactions = (p.signals?.linkedin_activity?.reactions || []).length;
+
+  summary.innerHTML = `
+    <strong>${escapeHtml(p.prospect?.name || "Unknown")}</strong>
+    · ${escapeHtml(p.prospect?.title || "—")} at ${escapeHtml(p.prospect?.company || "—")}
+    &nbsp;·&nbsp; ${escapeHtml(p.account?.industry || "—")} (${escapeHtml(p.account?.size || "?")})
+    &nbsp;·&nbsp; ICP fit: <strong>${fit}</strong><span class="${fitClass}">${fit >= 75 ? "strong" : fit >= 60 ? "moderate" : "weak"}</span>
+    &nbsp;·&nbsp; Signals: ${accountEvents} events, ${posts} posts, ${comments} comments, ${reactions} reactions
+  `;
+  summary.style.display = "block";
+}
+
+function renderRunUsage(usage) {
+  if (!usage) return;
+  const box = $("runUsage");
+  box.innerHTML = `
+    <span class="label">This run</span>
+    <span class="chip">Model: <strong>${escapeHtml(usage.model || "?")}</strong></span>
+    <span class="chip">Input: <strong>${fmtNum(usage.input_tokens)}</strong></span>
+    <span class="chip">Output: <strong>${fmtNum(usage.output_tokens)}</strong></span>
+    <span class="chip">Total: <strong>${fmtNum(usage.total_tokens)}</strong></span>
+    <span class="chip">Cost: <strong style="color:var(--ember)">$${(usage.estimated_cost_usd || 0).toFixed(5)}</strong></span>
+    <span class="chip">Latency: <strong>${usage.latency_ms ? (usage.latency_ms / 1000).toFixed(1) + "s" : "?"}</strong></span>
+  `;
+  box.style.display = "flex";
+}
+
+function wordCount(s) {
+  if (!s) return 0;
+  return s.trim().split(/\s+/).filter(Boolean).length;
+}
+
+function renderOutput(out) {
+  if (out.error) {
+    $("output").innerHTML = `<div class="error"><strong>Skill returned error:</strong> ${escapeHtml(out.error)}. Missing: ${escapeHtml((out.missing || []).join(", "))}</div>`;
+    return;
+  }
+
+  const email = out.email || {};
+  const subject = email.subject || "";
+  const preview = email.preview_text || "";
+  const body = email.body || "";
+  const linkedinNote = out.linkedin_note || "";
+  const hook = out.hook || {};
+  const rationale = out.rationale || "";
+  const confidenceNotes = out.confidence_notes || "";
+
+  const subjectWords = wordCount(subject);
+  const previewWords = wordCount(preview);
+  const bodyWords = wordCount(body);
+  const liChars = linkedinNote.length;
+
+  const html = `
+    <div class="cards">
+
+      <div class="card">
+        <h2>
+          Cold Email
+          <button class="copy-btn" onclick="copyEmail()">Copy email</button>
+        </h2>
+        <div class="email-meta">
+          <div class="meta-row">
+            <span class="meta-label">Subject</span>
+            <span class="meta-value">${escapeHtml(subject)}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Preview</span>
+            <span class="meta-value">${escapeHtml(preview)}</span>
+          </div>
+          <div class="word-count ${bodyWords > 75 ? "over" : ""}">
+            Subject: ${subjectWords} words (limit 7) · Preview: ${previewWords} words (limit 12) · Body: ${bodyWords} words (limit 75)
+          </div>
+        </div>
+        <div class="email-body" id="email-body-rendered">${escapeHtml(body)}</div>
+      </div>
+
+      <div class="card">
+        <h2>
+          LinkedIn Connection Note
+          <button class="copy-btn" onclick="copyToClipboard('linkedin-note-rendered')">Copy</button>
+        </h2>
+        <div class="linkedin-note">
+          <div id="linkedin-note-rendered">${escapeHtml(linkedinNote)}</div>
+          <div class="char-count ${liChars > 280 ? "over" : ""}">
+            ${liChars} characters (limit 280)
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Hook Chosen</h2>
+        <div class="hook-summary">
+          <div class="hook-row">
+            <span class="hook-pill ${escapeHtml(hook.category || "none_available")}">${escapeHtml(formatHookCategory(hook.category))}</span>
+            ${hook.primary_signal_id ? `<span class="signal-id">${escapeHtml(hook.primary_signal_id)}</span>` : ""}
+          </div>
+          ${hook.secondary_signal_id ? `
+            <div class="hook-row">
+              <span class="label" style="font-size:11px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Secondary</span>
+              <span class="signal-id">${escapeHtml(hook.secondary_signal_id)}</span>
+            </div>
+          ` : ""}
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>
+          Rationale
+          <button class="copy-btn" onclick="copyToClipboard('rationale-content')">Copy</button>
+        </h2>
+        <div class="rationale" id="rationale-content">${escapeHtml(rationale)}</div>
+      </div>
+
+      ${confidenceNotes ? `
+        <div class="card full-width">
+          <h2>Confidence Notes</h2>
+          <div class="confidence-notes">${escapeHtml(confidenceNotes)}</div>
+        </div>
+      ` : ""}
+
+    </div>
+  `;
+  $("output").innerHTML = html;
+}
+
+function formatHookCategory(cat) {
+  if (!cat) return "none";
+  return cat.replace(/_/g, " ");
+}
+
+function copyEmail() {
+  if (!lastOutput || !lastOutput.email) return;
+  const e = lastOutput.email;
+  const fullEmail = `Subject: ${e.subject || ""}\n\n${e.body || ""}`;
+  navigator.clipboard.writeText(fullEmail).then(() => {
+    const btns = document.querySelectorAll(".copy-btn");
+    btns.forEach(b => {
+      if (b.textContent === "Copy email") {
+        b.textContent = "Copied!";
+        b.classList.add("copied");
+        setTimeout(() => {
+          b.textContent = "Copy email";
+          b.classList.remove("copied");
+        }, 1500);
+      }
+    });
+  });
+}
+
+function copyToClipboard(elId) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  navigator.clipboard.writeText(el.innerText).then(() => {
+    const btn = event.target;
+    const original = btn.textContent;
+    btn.textContent = "Copied!";
+    btn.classList.add("copied");
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.classList.remove("copied");
+    }, 1500);
+  });
+}
+
+function escapeHtml(s) {
+  if (s == null) return "";
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+</script>
+
+</body>
+</html>

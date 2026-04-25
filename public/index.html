@@ -318,10 +318,36 @@
 </head>
 <body>
 
-<header>
-  <h1>GoWarm Sales Execution</h1>
-  <span class="badge">Skill: Discovery Call Prep</span>
-</header>
+//<header>
+//  <h1>GoWarm Sales Execution</h1>
+//  <span class="badge">Skill: Discovery Call Prep</span>
+//</header>
+
+// --- CHANGE 2: replace the existing <header>...</header> block ---
+//
+// FIND this block (around line 321-324 in index.html):
+//
+//   <header>
+//     <h1>GoWarm Sales Execution</h1>
+//     <span class="badge">Skill: Discovery Call Prep</span>
+//   </header>
+//
+// REPLACE with:
+
+  <header>
+    <h1>GoWarm Sales Execution</h1>
+    <div class="header-right">
+      <nav class="nav-links">
+        <a href="/" class="active">Deal skills</a>
+        <a href="/prospecting.html">Prospect skills</a>
+      </nav>
+      <span class="badge">Skill: Discovery Call Prep</span>
+    </div>
+  </header>
+
+// That's it. No JS changes, no other markup changes.
+
+
 
 <main>
 
@@ -387,6 +413,46 @@ $("runBtn").addEventListener("click", runSkill);
 $("methodologySelect").addEventListener("change", (e) => {
   $("methodologyHelp").textContent = METHODOLOGY_DESCRIPTIONS[e.target.value] || METHODOLOGY_DESCRIPTIONS[""];
 });
+
+
+// ==========================================================================
+// PATCH for existing public/index.html
+// Adds a "Deal skills | Prospect skills" nav next to the existing badge.
+// Two changes: a few CSS rules added to the <style> block, and the <header>
+// markup updated to include the nav.
+// ==========================================================================
+
+
+// --- CHANGE 1: add these rules anywhere inside the existing <style> block ---
+// (suggested location: right after the existing `header .badge` rule)
+
+  header .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  header .nav-links {
+    display: flex;
+    gap: 4px;
+    font-size: 13px;
+  }
+  header .nav-links a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: background 0.1s;
+  }
+  header .nav-links a:hover {
+    background: rgba(255,255,255,0.08);
+    color: white;
+  }
+  header .nav-links a.active {
+    background: rgba(255,255,255,0.12);
+    color: white;
+  }
+
+
 
 // Load session totals on page load
 loadSessionTotals();
