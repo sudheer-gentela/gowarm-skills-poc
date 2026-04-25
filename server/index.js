@@ -262,41 +262,25 @@ app.get("/api/deals/:id/context", async (req, res) => {
   }
 });
 
-// ==========================================================================
-// PATCH: Add to server/index.js in the existing GoWarm Skills PoC.
-// This is a STRICT ADDITION — do not modify the existing discovery-call-prep
-// route or the loadSkill/buildSystemPrompt functions. Just add:
-//   1. A new route for prospect context (below the deal-context route)
-//   2. A new route for outreach-personalization (below the discovery-call-prep route)
-// The existing loadSkill() function works for outreach-personalization as-is,
-// because it already reads SKILL.md + templates/ + reference/ + schema/ generically.
-// ==========================================================================
-
-
-// ---------------------------------------------------------------------------
-// Prospect context endpoint (mock-only for Phase 1)
-// ---------------------------------------------------------------------------
-//
-// Add this route next to the existing GET /api/deals/:id/context route.
-//
-// In production, this would proxy to the GoWarm backend's
-// /api/skill-context/prospects/:prospectId endpoint, the same pattern used
-// for deals. For Phase 1 we're mock-only.
-// ---------------------------------------------------------------------------
-
+// Prospect context — proxy-only (no PoC mocks). Phase 1.5 onward, GoWarm
+// owns prospect data via /api/skill-context/prospects/:id.
+// Optional ?as_user=:userId to apply per-user prospecting_config overrides.
 app.get("/api/prospects/:id/context", async (req, res) => {
   const { id } = req.params;
+  const asUser = req.query.as_user;
 
   if (!GOWARM_API_URL) {
-    const mockFile = path.join(MOCK_DIR, `prospect-${id}.json`);
-    if (!fs.existsSync(mockFile)) {
-      return res.status(404).json({ error: "prospect_not_found", id });
-    }
-    return res.json(JSON.parse(fs.readFileSync(mockFile, "utf8")));
+    return res.status(500).json({
+      error: "gowarm_backend_not_configured",
+      hint: "Set GOWARM_API_URL env var to point at the GoWarm backend.",
+    });
   }
 
   try {
-    const url = `${GOWARM_API_URL.replace(/\/$/, "")}/api/skill-context/prospects/${encodeURIComponent(id)}`;
+    let url = `${GOWARM_API_URL.replace(/\/$/, "")}/api/skill-context/prospects/${encodeURIComponent(id)}`;
+    if (asUser) {
+      url += `?as_user=${encodeURIComponent(asUser)}`;
+    }
     const response = await fetch(url, {
       headers: {
         "x-skill-runner-token": SKILL_RUNNER_TOKEN,
@@ -317,8 +301,6 @@ app.get("/api/prospects/:id/context", async (req, res) => {
     res.status(502).json({ error: "gowarm_backend_unreachable", message: err.message });
   }
 });
-
-
 
 // Execute the Discovery Call Prep skill
 app.post("/api/skills/discovery-call-prep", async (req, res) => {
@@ -407,20 +389,7 @@ app.post("/api/skills/discovery-call-prep", async (req, res) => {
   }
 });
 
-
-// ---------------------------------------------------------------------------
-// Outreach Personalization skill route
-// ---------------------------------------------------------------------------
-//
-// Add this route next to the existing POST /api/skills/discovery-call-prep.
-// It reuses loadSkill(), buildSystemPrompt(), and logUsage() without change.
-//
-// Note: no methodology parameter yet. That slot is reserved for Phase 2 when
-// we add cold-outreach methodology files (e.g. 3x3, pattern-interrupt,
-// relevance-first). The loadSkill() function already supports a methodology
-// arg, so extending is a one-line change later.
-// ---------------------------------------------------------------------------
-
+// Execute the Outreach Personalization skill
 app.post("/api/skills/outreach-personalization", async (req, res) => {
   try {
     const prospectPayload = req.body && req.body.prospectPayload;
@@ -494,7 +463,6 @@ app.post("/api/skills/outreach-personalization", async (req, res) => {
     res.status(500).json({ error: "skill_execution_failed", message: err.message });
   }
 });
-
 
 // Return current session usage
 app.get("/api/usage", (req, res) => {

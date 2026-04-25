@@ -449,12 +449,15 @@
 
   <div class="control-bar">
     <label for="prospectInput">Prospect ID:</label>
-    <input id="prospectInput" type="text" placeholder="e.g. 1-rich" value="1-rich" />
+    <input id="prospectInput" type="text" placeholder="e.g. 42" value="" />
+
+    <label for="asUserInput">As user (optional):</label>
+    <input id="asUserInput" type="text" placeholder="user_id (numeric)" value="" />
 
     <button id="runBtn">Run Outreach Personalization</button>
 
     <div style="width:100%; font-size:12px; color:var(--text-muted); margin-top:4px; padding:8px 12px; background:var(--bg); border-radius:6px;">
-      Try <strong>1-rich</strong> for a strong-signal prospect (Maya Krishnan, VP Sales at Ferrovia) or <strong>2-sparse</strong> for the failure-mode test (Tomás Villanueva, almost no signals).
+      Enter a real prospect ID from your GoWarm DB. Leave "As user" blank for org-default org_context, or supply a user ID to apply that user's prospecting_config overrides on top.
     </div>
   </div>
 
@@ -516,7 +519,9 @@ async function runSkill() {
 
   try {
     // Fetch prospect payload
-    const prospectResp = await fetch(`/api/prospects/${prospectId}/context`);
+    const asUser = $("asUserInput").value.trim();
+    const ctxUrl = `/api/prospects/${prospectId}/context${asUser ? `?as_user=${asUser}` : ''}`;
+    const prospectResp = await fetch(ctxUrl);
     if (!prospectResp.ok) {
       const errBody = await prospectResp.json().catch(() => ({}));
       throw new Error(`Prospect fetch failed: ${prospectResp.status} ${errBody.error || ""}`);
