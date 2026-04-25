@@ -262,6 +262,64 @@ app.get("/api/deals/:id/context", async (req, res) => {
   }
 });
 
+// ==========================================================================
+// PATCH: Add to server/index.js in the existing GoWarm Skills PoC.
+// This is a STRICT ADDITION — do not modify the existing discovery-call-prep
+// route or the loadSkill/buildSystemPrompt functions. Just add:
+//   1. A new route for prospect context (below the deal-context route)
+//   2. A new route for outreach-personalization (below the discovery-call-prep route)
+// The existing loadSkill() function works for outreach-personalization as-is,
+// because it already reads SKILL.md + templates/ + reference/ + schema/ generically.
+// ==========================================================================
+
+
+// ---------------------------------------------------------------------------
+// Prospect context endpoint (mock-only for Phase 1)
+// ---------------------------------------------------------------------------
+//
+// Add this route next to the existing GET /api/deals/:id/context route.
+//
+// In production, this would proxy to the GoWarm backend's
+// /api/skill-context/prospects/:prospectId endpoint, the same pattern used
+// for deals. For Phase 1 we're mock-only.
+// ---------------------------------------------------------------------------
+
+app.get("/api/prospects/:id/context", async (req, res) => {
+  const { id } = req.params;
+
+  if (!GOWARM_API_URL) {
+    const mockFile = path.join(MOCK_DIR, `prospect-${id}.json`);
+    if (!fs.existsSync(mockFile)) {
+      return res.status(404).json({ error: "prospect_not_found", id });
+    }
+    return res.json(JSON.parse(fs.readFileSync(mockFile, "utf8")));
+  }
+
+  try {
+    const url = `${GOWARM_API_URL.replace(/\/$/, "")}/api/skill-context/prospects/${encodeURIComponent(id)}`;
+    const response = await fetch(url, {
+      headers: {
+        "x-skill-runner-token": SKILL_RUNNER_TOKEN,
+        "Accept": "application/json",
+      },
+    });
+    if (!response.ok) {
+      const errText = await response.text().catch(() => "");
+      return res.status(response.status).json({
+        error: "gowarm_backend_error",
+        status: response.status,
+        detail: errText.slice(0, 500),
+      });
+    }
+    res.json(await response.json());
+  } catch (err) {
+    console.error("GoWarm backend fetch failed:", err);
+    res.status(502).json({ error: "gowarm_backend_unreachable", message: err.message });
+  }
+});
+
+
+
 // Execute the Discovery Call Prep skill
 app.post("/api/skills/discovery-call-prep", async (req, res) => {
   try {
@@ -348,6 +406,95 @@ app.post("/api/skills/discovery-call-prep", async (req, res) => {
     res.status(500).json({ error: "skill_execution_failed", message: err.message });
   }
 });
+
+
+// ---------------------------------------------------------------------------
+// Outreach Personalization skill route
+// ---------------------------------------------------------------------------
+//
+// Add this route next to the existing POST /api/skills/discovery-call-prep.
+// It reuses loadSkill(), buildSystemPrompt(), and logUsage() without change.
+//
+// Note: no methodology parameter yet. That slot is reserved for Phase 2 when
+// we add cold-outreach methodology files (e.g. 3x3, pattern-interrupt,
+// relevance-first). The loadSkill() function already supports a methodology
+// arg, so extending is a one-line change later.
+// ---------------------------------------------------------------------------
+
+app.post("/api/skills/outreach-personalization", async (req, res) => {
+  try {
+    const prospectPayload = req.body && req.body.prospectPayload;
+
+    if (!prospectPayload) {
+      return res.status(400).json({ error: "missing_prospect_payload" });
+    }
+
+    const bundle = loadSkill("outreach-personalization", null);
+    const system = buildSystemPrompt(bundle);
+
+    const userMessage = [
+      "Execute the Outreach Personalization skill on the following prospect payload.",
+      "Return ONLY the JSON object specified in the skill's Output format section.",
+      "No prose, no markdown fences, no commentary.",
+      "",
+      "Prospect payload:",
+      "```json",
+      JSON.stringify(prospectPayload, null, 2),
+      "```",
+    ].join("\n");
+
+    const startTs = Date.now();
+    const response = await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: 2000,
+      system,
+      messages: [{ role: "user", content: userMessage }],
+    });
+    const latencyMs = Date.now() - startTs;
+
+    const usageEntry = logUsage({
+      skill: "outreach-personalization",
+      methodology: null,
+      dealId: null,
+      model: response.model || MODEL,
+      usage: response.usage,
+      latencyMs,
+    });
+
+    const text = response.content
+      .filter(b => b.type === "text")
+      .map(b => b.text)
+      .join("\n")
+      .trim();
+
+    const cleaned = text
+      .replace(/^```(?:json)?\s*/i, "")
+      .replace(/```\s*$/i, "")
+      .trim();
+
+    let parsed;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch (e) {
+      return res.status(500).json({
+        error: "skill_output_not_valid_json",
+        raw: text.slice(0, 2000),
+        usage: usageEntry,
+      });
+    }
+
+    res.json({
+      ok: true,
+      output: parsed,
+      usage: usageEntry,
+      session_totals: getSessionTotals(),
+    });
+  } catch (err) {
+    console.error("Skill execution failed:", err);
+    res.status(500).json({ error: "skill_execution_failed", message: err.message });
+  }
+});
+
 
 // Return current session usage
 app.get("/api/usage", (req, res) => {
