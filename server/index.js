@@ -139,6 +139,102 @@ function getSessionTotals() {
 }
 
 // ---------------------------------------------------------------------------
+// Robust JSON extraction
+//
+// Models occasionally wrap output in markdown fences, add a ``` close tag
+// followed by stray characters, or emit unescaped double quotes inside string
+// values (e.g. when quoting a prospect's post verbatim). We cover the cheap
+// recoverable cases here so transient emission glitches don't blow up the
+// response. Anything we cannot recover from still surfaces a 500 with the raw
+// text for inspection.
+//
+// Returns { ok: true, value } or { ok: false, error, attempted }.
+// `attempted` is the cleaned-but-still-failing string so the caller can put
+// it on the error response for debugging.
+// ---------------------------------------------------------------------------
+function extractJsonObject(rawText) {
+  if (typeof rawText !== "string" || rawText.trim() === "") {
+    return { ok: false, error: "empty_response", attempted: "" };
+  }
+
+  // Strip leading prose, code fences, and trailing fences/ellipsis.
+  let s = rawText.trim();
+
+  // Remove an opening ```json or ``` fence (with or without language tag).
+  s = s.replace(/^```(?:json|JSON)?\s*\n?/i, "");
+  // Remove a trailing closing fence and anything after it on the same line.
+  s = s.replace(/\n?```[^\n]*$/i, "").trim();
+
+  // Walk to the first '{' and from there to the last '}', so leading or
+  // trailing prose (including stray "..." continuations) is dropped.
+  const firstBrace = s.indexOf("{");
+  const lastBrace  = s.lastIndexOf("}");
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    s = s.slice(firstBrace, lastBrace + 1);
+  }
+
+  // Attempt 1: parse as-is.
+  try {
+    return { ok: true, value: JSON.parse(s) };
+  } catch (_) { /* fall through to recovery */ }
+
+  // Attempt 2: repair unescaped double quotes inside string values.
+  //
+  // The most common LLM JSON failure is: "body": "He said "hi" today"
+  // We walk the string character by character respecting structural quotes,
+  // and inside a string-value, any " that isn't followed by a valid
+  // string-terminator character (whitespace, comma, } , ], :, or end) gets
+  // backslash-escaped. This is a heuristic but it handles the case in the
+  // raw output we've been seeing without breaking already-valid JSON.
+  const repaired = repairUnescapedQuotes(s);
+  if (repaired !== s) {
+    try {
+      return { ok: true, value: JSON.parse(repaired) };
+    } catch (_) { /* fall through */ }
+  }
+
+  return { ok: false, error: "unparseable_after_repair", attempted: s };
+}
+
+// Heuristic repair for the common "embedded unescaped double quote" case.
+// Scans the string keeping track of whether we're inside a string value,
+// and only escapes a `"` if it's followed by a non-terminator character.
+function repairUnescapedQuotes(s) {
+  let out = "";
+  let inString = false;
+  let prev = "";
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (ch === '"' && prev !== "\\") {
+      if (!inString) {
+        // Opening quote of a string.
+        inString = true;
+        out += ch;
+      } else {
+        // We're inside a string. Decide whether this `"` ends the string
+        // or is a stray embedded quote that needs escaping.
+        // Look at the next non-space character.
+        let j = i + 1;
+        while (j < s.length && (s[j] === " " || s[j] === "\t")) j++;
+        const next = j < s.length ? s[j] : "";
+        const terminators = [",", "}", "]", ":", "\n", "\r", ""];
+        if (terminators.includes(next)) {
+          inString = false;
+          out += ch;
+        } else {
+          // Stray embedded quote — escape it.
+          out += '\\"';
+        }
+      }
+    } else {
+      out += ch;
+    }
+    prev = ch;
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------------------
 // Healthcheck — before access gate so Railway can hit it
 // ---------------------------------------------------------------------------
 app.get("/health", (req, res) => {
@@ -328,6 +424,7 @@ app.post("/api/skills/discovery-call-prep", async (req, res) => {
         : "No methodology specified — run in default mode.",
       "Return ONLY the JSON object specified in the skill's Output format section.",
       "No prose, no markdown fences, no commentary.",
+      "Inside JSON string values, every double-quote character must be escaped as \\\".",
       "",
       "Deal payload:",
       "```json",
@@ -336,11 +433,15 @@ app.post("/api/skills/discovery-call-prep", async (req, res) => {
     ].join("\n");
 
     const startTs = Date.now();
+    // Prefill the assistant turn with `{` so the model begins with JSON.
     const response = await anthropic.messages.create({
       model: MODEL,
       max_tokens: 4000,
       system,
-      messages: [{ role: "user", content: userMessage }],
+      messages: [
+        { role: "user", content: userMessage },
+        { role: "assistant", content: "{" },
+      ],
     });
     const latencyMs = Date.now() - startTs;
 
@@ -360,25 +461,22 @@ app.post("/api/skills/discovery-call-prep", async (req, res) => {
       .join("\n")
       .trim();
 
-    const cleaned = text
-      .replace(/^```(?:json)?\s*/i, "")
-      .replace(/```\s*$/i, "")
-      .trim();
+    const completeText = "{" + text;
 
-    let parsed;
-    try {
-      parsed = JSON.parse(cleaned);
-    } catch (e) {
+    const parseResult = extractJsonObject(completeText);
+    if (!parseResult.ok) {
       return res.status(500).json({
         error: "skill_output_not_valid_json",
-        raw: text.slice(0, 2000),
+        reason: parseResult.error,
+        raw: completeText.slice(0, 2000),
+        attempted: parseResult.attempted ? parseResult.attempted.slice(0, 2000) : null,
         usage: usageEntry,
       });
     }
 
     res.json({
       ok: true,
-      output: parsed,
+      output: parseResult.value,
       methodology: methodology || "default",
       usage: usageEntry,
       session_totals: getSessionTotals(),
@@ -405,6 +503,7 @@ app.post("/api/skills/outreach-personalization", async (req, res) => {
       "Execute the Outreach Personalization skill on the following prospect payload.",
       "Return ONLY the JSON object specified in the skill's Output format section.",
       "No prose, no markdown fences, no commentary.",
+      "Inside JSON string values, every double-quote character must be escaped as \\\".",
       "",
       "Prospect payload:",
       "```json",
@@ -413,11 +512,17 @@ app.post("/api/skills/outreach-personalization", async (req, res) => {
     ].join("\n");
 
     const startTs = Date.now();
+    // Prefill the assistant turn with `{` so the model is mechanically
+    // forced to begin its response with a JSON object — no fences, no
+    // preamble. We re-prepend `{` to the response text before parsing.
     const response = await anthropic.messages.create({
       model: MODEL,
       max_tokens: 2000,
       system,
-      messages: [{ role: "user", content: userMessage }],
+      messages: [
+        { role: "user", content: userMessage },
+        { role: "assistant", content: "{" },
+      ],
     });
     const latencyMs = Date.now() - startTs;
 
@@ -436,25 +541,23 @@ app.post("/api/skills/outreach-personalization", async (req, res) => {
       .join("\n")
       .trim();
 
-    const cleaned = text
-      .replace(/^```(?:json)?\s*/i, "")
-      .replace(/```\s*$/i, "")
-      .trim();
+    // Re-attach the prefill character so the response is a complete JSON object.
+    const completeText = "{" + text;
 
-    let parsed;
-    try {
-      parsed = JSON.parse(cleaned);
-    } catch (e) {
+    const parseResult = extractJsonObject(completeText);
+    if (!parseResult.ok) {
       return res.status(500).json({
         error: "skill_output_not_valid_json",
-        raw: text.slice(0, 2000),
+        reason: parseResult.error,
+        raw: completeText.slice(0, 2000),
+        attempted: parseResult.attempted ? parseResult.attempted.slice(0, 2000) : null,
         usage: usageEntry,
       });
     }
 
     res.json({
       ok: true,
-      output: parsed,
+      output: parseResult.value,
       usage: usageEntry,
       session_totals: getSessionTotals(),
     });
