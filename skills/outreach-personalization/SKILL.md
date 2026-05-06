@@ -23,7 +23,7 @@ The caller passes a prospect payload. The expected shape is documented in `schem
 - `icp` — fit_score, matched_criteria, missed_criteria, persona_match
 - `signals.account_events` — funding, leadership changes, product launches, etc. Each carries source + timestamp.
 - `signals.linkedin_activity` — prospect's posts, comments, and reactions. Handle each differently (see "Signal-use rules" below).
-- `org_context` — the rep's own company, product, value props, case studies. You may draw on these but not fabricate additions.
+- `org_context` — the rep's own company, products, value props, case studies. You may draw on these but not fabricate additions. The `products` array is in priority order; anchor to `products[0]` unless a specific product better matches the prospect's signals.
 - `engagement_history` — usually empty or very short for first-touch scenarios.
 
 ## Handling sparse payloads
