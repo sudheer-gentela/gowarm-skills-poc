@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoWarm — Skill Runs</title>
+<style>
+  :root {
+    --ember: #E8630A;
+    --ember-hover: #CC5507;
+    --navy: #1A3A5C;
+    --bg: #F7F8FA;
+    --surface: #FFFFFF;
+    --border: #E4E7EB;
+    --text: #1F2937;
+    --text-muted: #6B7280;
+    --success: #059669;
+    --warning: #D97706;
+    --danger: #DC2626;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  header {
+    background: var(--navy);
+    color: white;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header h1 { margin: 0; font-size: 18px; font-weight: 600; }
+  header .nav-links { display: flex; gap: 4px; font-size: 13px; }
+  header .nav-links a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: background 0.1s;
+  }
+  header .nav-links a:hover { background: rgba(255,255,255,0.08); color: white; }
+  header .nav-links a.active { background: rgba(255,255,255,0.12); color: white; }
+  header .badge {
+    background: var(--ember);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 32px 64px;
+  }
+
+  .control-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .control-bar label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+  .control-bar input[type="text"], .control-bar select {
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: white;
+    font-size: 13px;
+    min-width: 150px;
+  }
+  .control-bar input[type="text"]:focus, .control-bar select:focus {
+    outline: none;
+    border-color: var(--ember);
+    box-shadow: 0 0 0 3px rgba(232, 99, 10, 0.1);
+  }
+  button {
+    padding: 7px 16px;
+    background: var(--ember);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button:hover:not(:disabled) { background: var(--ember-hover); }
+  button:disabled { opacity: 0.6; cursor: wait; }
+  button.secondary {
+    background: white;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  button.secondary:hover:not(:disabled) {
+    background: #F3F4F6;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+  }
+  .summary-card h3 {
+    margin: 0 0 12px 0;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+  }
+  .summary-totals {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .summary-totals .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .summary-totals .stat-label {
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .summary-totals .stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .summary-totals .stat-value.cost { color: var(--ember); }
+
+  .dist-bars { display: flex; flex-direction: column; gap: 6px; }
+  .dist-row {
+    display: grid;
+    grid-template-columns: 160px 1fr 50px;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  .dist-bar {
+    background: #F3F4F6;
+    height: 18px;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+  .dist-bar-fill {
+    background: var(--ember);
+    height: 100%;
+    transition: width 0.3s;
+  }
+  .dist-row .label {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    color: var(--text);
+  }
+  .dist-row .count {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+
+  /* Diagnostic block — the main "why is post always picked?" answer */
+  .diagnostic {
+    background: #FFFBEB;
+    border-left: 3px solid var(--warning);
+    padding: 14px 18px;
+    margin-top: 14px;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+  }
+  .diagnostic h4 {
+    margin: 0 0 10px 0;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #78350F;
+  }
+  .diagnostic .cond {
+    margin-bottom: 8px;
+  }
+  .diagnostic .cond:last-child { margin-bottom: 0; }
+  .diagnostic .cond-name {
+    font-weight: 600;
+    font-size: 12px;
+    color: #78350F;
+  }
+  .diagnostic .picked-list {
+    margin-top: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11.5px;
+    color: var(--text);
+  }
+
+  /* Runs table */
+  .runs-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  table.runs {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.runs thead th {
+    background: #F9FAFB;
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+  table.runs tbody td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  table.runs tbody tr {
+    cursor: pointer;
+  }
+  table.runs tbody tr:hover {
+    background: #F9FAFB;
+  }
+  table.runs tbody tr.selected {
+    background: rgba(232, 99, 10, 0.06);
+  }
+  .hook-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .hook-pill.prospect_post   { background: #DCFCE7; color: #14532D; }
+  .hook-pill.prospect_comment{ background: #DBEAFE; color: #1E3A8A; }
+  .hook-pill.account_event   { background: #FEF3C7; color: #78350F; }
+  .hook-pill.tech_stack      { background: #EDE9FE; color: #4C1D95; }
+  .hook-pill.role_curiosity  { background: #FEE2E2; color: #991B1B; }
+  .hook-pill.none_available  { background: #F3F4F6; color: #374151; }
+  .hook-pill.__null__        { background: #F3F4F6; color: #6B7280; }
+
+  .status-pill {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .status-pill.ok                { background: #DCFCE7; color: #14532D; }
+  .status-pill.parse_failed      { background: #FEE2E2; color: #991B1B; }
+  .status-pill.execution_failed  { background: #FEE2E2; color: #991B1B; }
+
+  .signal-pill {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: #F3F4F6;
+    color: var(--text-muted);
+    font-size: 10.5px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    margin-right: 3px;
+  }
+  .signal-pill.has { background: #ECFDF5; color: #065F46; }
+
+  .pagination {
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #F9FAFB;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* Side drawer */
+  .drawer-mask {
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 100;
+  }
+  .drawer-mask.open { opacity: 1; pointer-events: auto; }
+  .drawer {
+    position: fixed;
+    top: 0; right: 0; bottom: 0;
+    width: 75%; max-width: 1200px;
+    background: var(--bg);
+    box-shadow: -8px 0 24px rgba(0,0,0,0.15);
+    transform: translateX(100%);
+    transition: transform 0.25s;
+    z-index: 101;
+    display: flex;
+    flex-direction: column;
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer-header {
+    padding: 16px 24px;
+    background: var(--navy);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .drawer-header h2 { margin: 0; font-size: 16px; font-weight: 600; }
+  .drawer-close {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .drawer-close:hover { background: rgba(255,255,255,0.18); }
+  .drawer-body {
+    flex: 1;
+    overflow: auto;
+    padding: 20px 24px;
+  }
+
+  .drawer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  .drawer-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .drawer-panel h3 {
+    margin: 0;
+    padding: 10px 14px;
+    background: #F9FAFB;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+  }
+  pre.json {
+    margin: 0;
+    padding: 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11.5px;
+    line-height: 1.5;
+    overflow: auto;
+    max-height: 70vh;
+    background: white;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .drawer-meta {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    font-size: 13px;
+  }
+  .drawer-meta .stat-label {
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  .drawer-meta .stat-value {
+    font-weight: 600;
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+    word-break: break-word;
+  }
+
+  .empty {
+    padding: 48px 24px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+  .error {
+    background: #FEE2E2;
+    color: #991B1B;
+    padding: 12px 18px;
+    border-radius: 6px;
+    border-left: 3px solid var(--danger);
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+  .loading {
+    padding: 24px;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>GoWarm Skills Runner <span class="badge">PoC</span></h1>
+  <div class="nav-links">
+    <a href="/">Deal skills</a>
+    <a href="/prospecting.html">Prospect skills</a>
+    <a href="/runs.html" class="active">Runs</a>
+  </div>
+</header>
+
+<main>
+  <div class="control-bar">
+    <label for="orgInput">Org ID:</label>
+    <input id="orgInput" type="text" placeholder="e.g. 7" />
+    <label for="skillSelect">Skill:</label>
+    <select id="skillSelect">
+      <option value="">All</option>
+      <option value="outreach-personalization">outreach-personalization</option>
+      <option value="discovery-call-prep">discovery-call-prep</option>
+    </select>
+    <label for="hookSelect">Hook picked:</label>
+    <select id="hookSelect">
+      <option value="">All</option>
+      <option value="prospect_post">prospect_post</option>
+      <option value="prospect_comment">prospect_comment</option>
+      <option value="account_event">account_event</option>
+      <option value="tech_stack">tech_stack</option>
+      <option value="role_curiosity">role_curiosity</option>
+      <option value="none_available">none_available</option>
+    </select>
+    <button id="loadBtn">Load</button>
+  </div>
+
+  <div id="error" style="display:none;"></div>
+
+  <div id="summary"></div>
+
+  <div class="runs-card">
+    <table class="runs">
+      <thead>
+        <tr>
+          <th style="width:50px;">ID</th>
+          <th>Prospect</th>
+          <th style="width:140px;">Hook picked</th>
+          <th style="width:200px;">Signals available</th>
+          <th style="width:80px;">Status</th>
+          <th style="width:90px;">Cost</th>
+          <th style="width:140px;">When</th>
+        </tr>
+      </thead>
+      <tbody id="runsBody">
+        <tr><td colspan="7" class="empty">Enter an org ID and click Load.</td></tr>
+      </tbody>
+    </table>
+    <div class="pagination">
+      <span id="paginationInfo"></span>
+      <button id="loadMoreBtn" class="secondary" style="display:none;">Load more</button>
+    </div>
+  </div>
+</main>
+
+<!-- Side drawer for run detail -->
+<div id="drawerMask" class="drawer-mask"></div>
+<div id="drawer" class="drawer">
+  <div class="drawer-header">
+    <h2 id="drawerTitle">Run detail</h2>
+    <button class="drawer-close" id="drawerCloseBtn">Close</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+// Persist filter values across reloads — reading the data is iterative
+let nextBeforeId = null;
+let lastListParams = null;
+
+function setError(msg) {
+  const el = $("error");
+  if (!msg) { el.style.display = "none"; el.textContent = ""; return; }
+  el.style.display = "block";
+  el.className = "error";
+  el.textContent = msg;
+}
+
+function fmtDate(ts) {
+  if (!ts) return "—";
+  const d = new Date(ts);
+  if (Number.isNaN(d.getTime())) return ts;
+  return d.toLocaleString();
+}
+
+function fmtCost(c) {
+  if (c == null) return "—";
+  const n = Number(c);
+  if (n === 0) return "$0";
+  if (n < 0.01) return `$${n.toFixed(4)}`;
+  return `$${n.toFixed(3)}`;
+}
+
+function escapeHtml(s) {
+  if (s == null) return "";
+  return String(s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+function hookPill(category) {
+  const c = category || "__null__";
+  return `<span class="hook-pill ${c}">${escapeHtml(c)}</span>`;
+}
+
+function statusPill(s) {
+  return `<span class="status-pill ${s}">${escapeHtml(s)}</span>`;
+}
+
+function signalPills(row) {
+  const pills = [];
+  pills.push(`<span class="signal-pill ${row.posts_n > 0 ? 'has' : ''}">posts:${row.posts_n||0}</span>`);
+  pills.push(`<span class="signal-pill ${row.comments_n > 0 ? 'has' : ''}">cmts:${row.comments_n||0}</span>`);
+  pills.push(`<span class="signal-pill ${row.account_events_n > 0 ? 'has' : ''}">evts:${row.account_events_n||0}</span>`);
+  pills.push(`<span class="signal-pill ${row.tech_stack_n > 0 ? 'has' : ''}">tech:${row.tech_stack_n||0}</span>`);
+  return pills.join(" ");
+}
+
+function getOrgId() {
+  const v = $("orgInput").value.trim();
+  if (!v) return null;
+  return v;
+}
+
+async function loadAll() {
+  const orgId = getOrgId();
+  if (!orgId) {
+    setError("Org ID is required.");
+    return;
+  }
+  setError(null);
+  nextBeforeId = null;
+  lastListParams = {
+    org_id: orgId,
+    skill_name: $("skillSelect").value || "",
+    hook: $("hookSelect").value || "",
+  };
+  await loadSummary();
+  await loadRuns(true);
+}
+
+async function loadSummary() {
+  const orgId = getOrgId();
+  $("summary").innerHTML = `<div class="loading">Loading summary...</div>`;
+  const params = new URLSearchParams({ org_id: orgId });
+  const skill = $("skillSelect").value;
+  if (skill) params.set("skill_name", skill);
+
+  try {
+    const resp = await fetch(`/api/skill-runs/summary?${params}`);
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err?.error?.message || err?.error || `HTTP ${resp.status}`);
+    }
+    const s = await resp.json();
+    renderSummary(s);
+  } catch (err) {
+    $("summary").innerHTML = "";
+    setError(`Summary load failed: ${err.message}`);
+  }
+}
+
+function renderSummary(s) {
+  // Sort hook distribution descending
+  const hookEntries = Object.entries(s.hook_distribution || {}).sort((a, b) => b[1] - a[1]);
+  const maxCount = hookEntries.length > 0 ? Math.max(...hookEntries.map(([, n]) => n)) : 1;
+
+  const distBars = hookEntries.map(([cat, n]) => {
+    const pct = maxCount > 0 ? (n / maxCount) * 100 : 0;
+    return `
+      <div class="dist-row">
+        <span class="label">${escapeHtml(cat)}</span>
+        <div class="dist-bar"><div class="dist-bar-fill" style="width:${pct}%"></div></div>
+        <span class="count">${n}</span>
+      </div>`;
+  }).join("");
+
+  const renderCondPicked = (picked) => {
+    const entries = Object.entries(picked || {}).sort((a, b) => b[1] - a[1]);
+    if (entries.length === 0) return `<span style="color: var(--text-muted)">no runs match</span>`;
+    return entries.map(([cat, n]) => `${escapeHtml(cat)}: <strong>${n}</strong>`).join(" · ");
+  };
+
+  const b = s.bypassed_when_available || {};
+
+  $("summary").innerHTML = `
+    <div class="summary-grid">
+      <div class="summary-card">
+        <h3>Totals</h3>
+        <div class="summary-totals">
+          <div class="stat">
+            <span class="stat-label">Runs</span>
+            <span class="stat-value">${s.total_runs || 0}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Total cost</span>
+            <span class="stat-value cost">${fmtCost(s.total_cost_usd || 0)}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Input tokens</span>
+            <span class="stat-value">${(s.total_input_tokens || 0).toLocaleString()}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Output tokens</span>
+            <span class="stat-value">${(s.total_output_tokens || 0).toLocaleString()}</span>
+          </div>
+        </div>
+        ${Object.entries(s.status_distribution || {}).map(([st, n]) =>
+          `<div style="font-size: 12px; color: var(--text-muted);">${statusPill(st)} ${n}</div>`
+        ).join(" &nbsp; ")}
+      </div>
+
+      <div class="summary-card">
+        <h3>Hook category distribution</h3>
+        <div class="dist-bars">${distBars || `<div class="empty" style="padding:8px;">No runs yet</div>`}</div>
+
+        <div class="diagnostic">
+          <h4>Diagnostic — what was picked when X was available?</h4>
+          <div class="cond">
+            <div class="cond-name">When account_event was in the payload:</div>
+            <div class="picked-list">${renderCondPicked(b.account_event_present?.picked)}</div>
+          </div>
+          <div class="cond">
+            <div class="cond-name">When tech_stack was in the payload:</div>
+            <div class="picked-list">${renderCondPicked(b.tech_stack_present?.picked)}</div>
+          </div>
+          <div class="cond">
+            <div class="cond-name">When ONLY a post was available (no event/tech):</div>
+            <div class="picked-list">${renderCondPicked(b.recent_post_only?.picked)}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function loadRuns(replace) {
+  const orgId = getOrgId();
+  const tbody = $("runsBody");
+  if (replace) tbody.innerHTML = `<tr><td colspan="7" class="loading">Loading runs...</td></tr>`;
+
+  const params = new URLSearchParams({ org_id: orgId, limit: "50" });
+  if (lastListParams.skill_name) params.set("skill_name", lastListParams.skill_name);
+  if (lastListParams.hook)       params.set("hook", lastListParams.hook);
+  if (!replace && nextBeforeId)  params.set("before_id", String(nextBeforeId));
+
+  try {
+    const resp = await fetch(`/api/skill-runs?${params}`);
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err?.error?.message || err?.error || `HTTP ${resp.status}`);
+    }
+    const data = await resp.json();
+    const newRows = data.runs || [];
+
+    if (replace) {
+      tbody.innerHTML = "";
+      if (newRows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="empty">No runs found for this filter.</td></tr>`;
+      }
+    }
+
+    for (const r of newRows) {
+      const tr = document.createElement("tr");
+      tr.dataset.id = r.id;
+      tr.innerHTML = `
+        <td><span style="font-family: ui-monospace, monospace; color: var(--text-muted); font-size: 12px;">${r.id}</span></td>
+        <td>
+          <div style="font-weight: 600;">${escapeHtml(r.prospect_name || "—")}</div>
+          <div style="font-size: 11px; color: var(--text-muted);">${escapeHtml(r.prospect_title || "")} ${r.prospect_company ? "· " + escapeHtml(r.prospect_company) : ""}</div>
+        </td>
+        <td>${hookPill(r.hook_category)}</td>
+        <td>${signalPills(r)}</td>
+        <td>${statusPill(r.status)}</td>
+        <td style="font-variant-numeric: tabular-nums;">${fmtCost(r.cost_usd)}</td>
+        <td style="color: var(--text-muted); font-size: 12px;">${fmtDate(r.created_at)}</td>
+      `;
+      tr.addEventListener("click", () => openDrawer(r.id));
+      tbody.appendChild(tr);
+    }
+
+    nextBeforeId = data.next_before_id;
+    $("loadMoreBtn").style.display = nextBeforeId ? "inline-block" : "none";
+    $("paginationInfo").textContent = newRows.length === 0 && replace
+      ? ""
+      : `Showing ${tbody.children.length} run(s)${nextBeforeId ? " — more available" : ""}`;
+  } catch (err) {
+    tbody.innerHTML = "";
+    setError(`Runs load failed: ${err.message}`);
+  }
+}
+
+async function openDrawer(id) {
+  const orgId = getOrgId();
+  $("drawerTitle").textContent = `Run #${id}`;
+  $("drawerBody").innerHTML = `<div class="loading">Loading...</div>`;
+  $("drawerMask").classList.add("open");
+  $("drawer").classList.add("open");
+
+  // Highlight selected row
+  for (const tr of document.querySelectorAll("table.runs tbody tr")) {
+    tr.classList.toggle("selected", tr.dataset.id === String(id));
+  }
+
+  try {
+    const params = new URLSearchParams({ org_id: orgId, include_prompt: "1" });
+    const resp = await fetch(`/api/skill-runs/${encodeURIComponent(id)}?${params}`);
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err?.error?.message || err?.error || `HTTP ${resp.status}`);
+    }
+    const r = await resp.json();
+    renderDrawer(r);
+  } catch (err) {
+    $("drawerBody").innerHTML = `<div class="error">Detail load failed: ${escapeHtml(err.message)}</div>`;
+  }
+}
+
+function closeDrawer() {
+  $("drawerMask").classList.remove("open");
+  $("drawer").classList.remove("open");
+  for (const tr of document.querySelectorAll("table.runs tbody tr")) {
+    tr.classList.remove("selected");
+  }
+}
+
+function renderDrawer(r) {
+  const inputJson = r.input_payload ? JSON.stringify(r.input_payload, null, 2) : "(empty)";
+  const outputJson = r.output ? JSON.stringify(r.output, null, 2) : "(no parsed output)";
+  const showRaw = !r.output && r.raw_output;
+
+  $("drawerBody").innerHTML = `
+    <div class="drawer-meta">
+      <div>
+        <div class="stat-label">Skill</div>
+        <div class="stat-value">${escapeHtml(r.skill_name)}${r.methodology ? ` (${escapeHtml(r.methodology)})` : ""}</div>
+      </div>
+      <div>
+        <div class="stat-label">Hook picked</div>
+        <div class="stat-value">${hookPill(r.hook_category)} ${r.hook_signal_id ? `<span style="font-size:11px;color:var(--text-muted);font-family:ui-monospace,monospace;">${escapeHtml(r.hook_signal_id)}</span>` : ""}</div>
+      </div>
+      <div>
+        <div class="stat-label">Status</div>
+        <div class="stat-value">${statusPill(r.status)}${r.error_detail ? `<div style="font-size:11px;color:var(--danger);margin-top:3px;">${escapeHtml(r.error_detail)}</div>` : ""}</div>
+      </div>
+      <div>
+        <div class="stat-label">Telemetry</div>
+        <div class="stat-value">${fmtCost(r.cost_usd)} · ${(r.input_tokens||0).toLocaleString()}+${(r.output_tokens||0).toLocaleString()} tok · ${r.latency_ms ? `${r.latency_ms}ms` : "—"}</div>
+      </div>
+    </div>
+
+    <div class="drawer-grid">
+      <div class="drawer-panel">
+        <h3>Input payload</h3>
+        <pre class="json">${escapeHtml(inputJson)}</pre>
+      </div>
+      <div class="drawer-panel">
+        <h3>${showRaw ? "Raw output (parse failed)" : "Output"}</h3>
+        <pre class="json">${escapeHtml(showRaw ? r.raw_output : outputJson)}</pre>
+      </div>
+    </div>
+
+    ${r.prompt_text ? `
+    <div class="drawer-panel" style="margin-top:18px;">
+      <h3>System prompt (assembled)</h3>
+      <pre class="json">${escapeHtml(r.prompt_text)}</pre>
+    </div>` : ""}
+  `;
+}
+
+// Wire events
+$("loadBtn").addEventListener("click", loadAll);
+$("loadMoreBtn").addEventListener("click", () => loadRuns(false));
+$("drawerCloseBtn").addEventListener("click", closeDrawer);
+$("drawerMask").addEventListener("click", closeDrawer);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeDrawer();
+});
+
+// Restore last org_id from localStorage if present
+const savedOrg = localStorage.getItem("gowarm_runs_org_id");
+if (savedOrg) {
+  $("orgInput").value = savedOrg;
+  loadAll();
+}
+$("orgInput").addEventListener("change", () => {
+  localStorage.setItem("gowarm_runs_org_id", $("orgInput").value.trim());
+});
+</script>
+</body>
+</html>
