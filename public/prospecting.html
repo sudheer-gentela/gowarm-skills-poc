@@ -417,7 +417,6 @@
     <nav class="nav-links">
       <a href="/">Deal skills</a>
       <a href="/prospecting.html" class="active">Prospect skills</a>
-      <a href="/runs.html">Runs</a> 
     </nav>
     <span class="badge">Skill: Outreach Personalization</span>
   </div>
@@ -525,7 +524,8 @@ async function runSkill() {
     const prospectResp = await fetch(ctxUrl);
     if (!prospectResp.ok) {
       const errBody = await prospectResp.json().catch(() => ({}));
-      throw new Error(`Prospect fetch failed: ${prospectResp.status} ${errBody.error || ""}`);
+      output.innerHTML = renderProspectFetchError(prospectResp.status, errBody, prospectId);
+      return;
     }
     const prospectPayload = await prospectResp.json();
     renderProspectSummary(prospectPayload);
@@ -545,14 +545,88 @@ async function runSkill() {
       if (skillData.session_totals) renderSessionTotals(skillData.session_totals);
     } else {
       if (skillData.usage) renderRunUsage(skillData.usage);
-      output.innerHTML = `<div class="error"><strong>Error:</strong> ${skillData.error || "unknown"}${skillData.raw ? `<br><br><em>Raw output (first 2k chars):</em><pre style="white-space:pre-wrap;font-size:12px;">${escapeHtml(skillData.raw)}</pre>` : ""}</div>`;
+      output.innerHTML = renderSkillError(skillData);
     }
   } catch (err) {
-    output.innerHTML = `<div class="error"><strong>Error:</strong> ${err.message}</div>`;
+    // Network-level failure (no response at all). Backend errors are
+    // handled inline above; this catch is for fetch() throwing —
+    // typically a connection drop or DNS issue.
+    output.innerHTML = `<div class="error"><strong>Couldn't reach the skill runner.</strong> Check your connection and try again. <span style="color: var(--text-muted); font-size: 12px;">(${escapeHtml(err.message)})</span></div>`;
   } finally {
     btn.disabled = false;
     btn.textContent = "Run Outreach Personalization";
   }
+}
+
+// ─── Friendly error formatting ──────────────────────────────────────────────
+//
+// The runner proxy passes through the GoWarm backend's structured error
+// body, so errBody.error is { message, code, ... } when GoWarm spoke. On
+// network-level failures it's our own wrapper. We pick a message based on
+// status + code; backend's own message is always preferred when present.
+function renderProspectFetchError(status, errBody, prospectId) {
+  const errObj = (errBody && typeof errBody.error === "object") ? errBody.error : null;
+  const code     = errObj?.code    || null;
+  const backend  = errObj?.message || (typeof errBody?.error === "string" ? errBody.error : null);
+
+  let title, body, hint;
+
+  if (status === 404) {
+    title = "Prospect not found.";
+    body  = `No prospect with ID <code>${escapeHtml(prospectId)}</code> exists in your GoWarm CRM, or it has been deleted. Double-check the ID and try again.`;
+  } else if (status === 400) {
+    title = "Invalid prospect ID.";
+    body  = backend ? escapeHtml(backend) : "The ID format wasn't accepted.";
+  } else if (status === 401 || status === 403) {
+    title = "Auth failed.";
+    body  = "The runner token is invalid or expired. Restart the skills runner with a fresh SKILL_RUNNER_TOKEN, or check that the same token is set on both the runner and the GoWarm backend.";
+  } else if (status === 502 || code === "gowarm_backend_unreachable") {
+    title = "GoWarm backend is unreachable.";
+    body  = "The skills runner couldn't connect to GoWarm. The backend may be redeploying or down. Try again in a moment.";
+  } else if (code === "gowarm_backend_not_configured") {
+    title = "Skills runner isn't configured.";
+    body  = "GOWARM_API_URL isn't set on the runner. This is a deployment issue, not something the user can fix.";
+  } else {
+    title = `Couldn't fetch prospect ${escapeHtml(prospectId)}.`;
+    body  = backend ? escapeHtml(backend) : `The GoWarm backend returned HTTP ${status} with no further detail.`;
+  }
+
+  return `<div class="error"><strong>${title}</strong><br>${body}</div>`;
+}
+
+function renderSkillError(skillData) {
+  // skillData.error is currently a string code from the runner's own
+  // internal errors (skill_output_not_valid_json, skill_execution_failed).
+  // Future runs may carry the structured shape if we ever pass through
+  // backend errors here too — handle both.
+  const errStr = typeof skillData?.error === "string" ? skillData.error : null;
+  const errMsg = (skillData?.error && typeof skillData.error === "object" && skillData.error.message) || null;
+
+  let title, body;
+  switch (errStr) {
+    case "missing_prospect_payload":
+      title = "Skill couldn't find a prospect payload to work with.";
+      body  = "This is usually a runner bug — try refreshing the page.";
+      break;
+    case "skill_output_not_valid_json":
+      title = "The model returned malformed JSON.";
+      body  = `The skill executed but its output wasn't parseable. Try running it again — this is usually transient. If it keeps happening on the same prospect, the input payload may have an edge case worth investigating. ${skillData.reason ? `<br><br><em>Parse error:</em> ${escapeHtml(skillData.reason)}` : ""}`;
+      break;
+    case "skill_execution_failed":
+      title = "The skill couldn't run.";
+      body  = `Something went wrong calling Anthropic. Try again in a moment. ${skillData.message ? `<br><br><em>Detail:</em> ${escapeHtml(skillData.message)}` : ""}`;
+      break;
+    default:
+      title = "Skill failed.";
+      body  = errMsg ? escapeHtml(errMsg)
+            : errStr ? escapeHtml(errStr)
+            : "Unknown error.";
+  }
+
+  const rawBlock = skillData.raw
+    ? `<br><br><em>Raw output (first 2k chars):</em><pre style="white-space:pre-wrap;font-size:12px;">${escapeHtml(skillData.raw)}</pre>`
+    : "";
+  return `<div class="error"><strong>${title}</strong><br>${body}${rawBlock}</div>`;
 }
 
 function renderProspectSummary(p) {

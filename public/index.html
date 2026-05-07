@@ -349,7 +349,6 @@
     <nav class="nav-links">
       <a href="/" class="active">Deal skills</a>
       <a href="/prospecting.html">Prospect skills</a>
-      <a href="/runs.html">Runs</a>
     </nav>
     <span class="badge">Skill: Discovery Call Prep</span>
   </div>
@@ -470,7 +469,8 @@ async function runSkill() {
     const dealResp = await fetch(`/api/deals/${dealId}/context`);
     if (!dealResp.ok) {
       const errBody = await dealResp.json().catch(() => ({}));
-      throw new Error(`Deal fetch failed: ${dealResp.status} ${errBody.error || ""}`);
+      output.innerHTML = renderDealFetchError(dealResp.status, errBody, dealId);
+      return;
     }
     const dealPayload = await dealResp.json();
     renderDealSummary(dealPayload);
@@ -489,16 +489,85 @@ async function runSkill() {
       renderOutput(skillData.output);
       if (skillData.session_totals) renderSessionTotals(skillData.session_totals);
     } else {
-      // If skill output failed to parse, we may still have a usage entry
       if (skillData.usage) renderRunUsage(skillData.usage, methodology);
-      output.innerHTML = `<div class="error"><strong>Error:</strong> ${skillData.error || "unknown"}${skillData.raw ? `<br><br><em>Raw output (first 2k chars):</em><pre style="white-space:pre-wrap;font-size:12px;">${escapeHtml(skillData.raw)}</pre>` : ""}</div>`;
+      output.innerHTML = renderSkillError(skillData);
     }
   } catch (err) {
-    output.innerHTML = `<div class="error"><strong>Error:</strong> ${err.message}</div>`;
+    output.innerHTML = `<div class="error"><strong>Couldn't reach the skill runner.</strong> Check your connection and try again. <span style="color: var(--text-muted); font-size: 12px;">(${escapeHtml(err.message)})</span></div>`;
   } finally {
     btn.disabled = false;
     btn.textContent = "Run Discovery Call Prep";
   }
+}
+
+// ─── Friendly error formatting ──────────────────────────────────────────────
+function renderDealFetchError(status, errBody, dealId) {
+  const errObj = (errBody && typeof errBody.error === "object") ? errBody.error : null;
+  const code     = errObj?.code    || null;
+  const backend  = errObj?.message || (typeof errBody?.error === "string" ? errBody.error : null);
+
+  let title, body;
+
+  if (code === "deal_not_found") {
+    // Mock-mode fallback case — give specific guidance about GOWARM_API_URL
+    title = "Deal not found.";
+    body  = `No mock data exists for deal <code>${escapeHtml(dealId)}</code>. Try a different ID, or configure GOWARM_API_URL on the runner to fetch real deals from your GoWarm CRM.`;
+  } else if (status === 404) {
+    title = "Deal not found.";
+    body  = `No deal with ID <code>${escapeHtml(dealId)}</code> exists in your GoWarm CRM, or it has been deleted. Double-check the ID and try again.`;
+  } else if (status === 400) {
+    title = "Invalid deal ID.";
+    body  = backend ? escapeHtml(backend) : "The ID format wasn't accepted.";
+  } else if (status === 401 || status === 403) {
+    title = "Auth failed.";
+    body  = "The runner token is invalid or expired. Restart the skills runner with a fresh SKILL_RUNNER_TOKEN, or check that the same token is set on both the runner and the GoWarm backend.";
+  } else if (status === 502 || code === "gowarm_backend_unreachable") {
+    title = "GoWarm backend is unreachable.";
+    body  = "The skills runner couldn't connect to GoWarm. The backend may be redeploying or down. Try again in a moment.";
+  } else if (code === "gowarm_backend_not_configured") {
+    title = "Skills runner isn't configured.";
+    body  = "GOWARM_API_URL isn't set on the runner. This is a deployment issue, not something the user can fix.";
+  } else {
+    title = `Couldn't fetch deal ${escapeHtml(dealId)}.`;
+    body  = backend ? escapeHtml(backend) : `The GoWarm backend returned HTTP ${status} with no further detail.`;
+  }
+
+  return `<div class="error"><strong>${title}</strong><br>${body}</div>`;
+}
+
+function renderSkillError(skillData) {
+  const errStr = typeof skillData?.error === "string" ? skillData.error : null;
+  const errMsg = (skillData?.error && typeof skillData.error === "object" && skillData.error.message) || null;
+
+  let title, body;
+  switch (errStr) {
+    case "missing_deal_payload":
+      title = "Skill couldn't find a deal payload to work with.";
+      body  = "This is usually a runner bug — try refreshing the page.";
+      break;
+    case "invalid_methodology":
+      title = "Methodology not recognized.";
+      body  = `Pick one of: ${(skillData.allowed || []).join(", ") || "meddic, challenger"}.`;
+      break;
+    case "skill_output_not_valid_json":
+      title = "The model returned malformed JSON.";
+      body  = `The skill executed but its output wasn't parseable. Try running it again — this is usually transient. ${skillData.reason ? `<br><br><em>Parse error:</em> ${escapeHtml(skillData.reason)}` : ""}`;
+      break;
+    case "skill_execution_failed":
+      title = "The skill couldn't run.";
+      body  = `Something went wrong calling Anthropic. Try again in a moment. ${skillData.message ? `<br><br><em>Detail:</em> ${escapeHtml(skillData.message)}` : ""}`;
+      break;
+    default:
+      title = "Skill failed.";
+      body  = errMsg ? escapeHtml(errMsg)
+            : errStr ? escapeHtml(errStr)
+            : "Unknown error.";
+  }
+
+  const rawBlock = skillData.raw
+    ? `<br><br><em>Raw output (first 2k chars):</em><pre style="white-space:pre-wrap;font-size:12px;">${escapeHtml(skillData.raw)}</pre>`
+    : "";
+  return `<div class="error"><strong>${title}</strong><br>${body}${rawBlock}</div>`;
 }
 
 function renderDealSummary(d) {

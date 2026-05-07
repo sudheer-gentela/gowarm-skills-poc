@@ -445,13 +445,47 @@ function buildSystemPrompt(bundle) {
 // Routes
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Helper: forward an upstream error response from the GoWarm backend.
+//
+// The GoWarm backend uses a canonical error body shape:
+//   { error: { message: "<human readable>", ...optional fields } }
+//
+// We pass that through verbatim with the original status code so the
+// frontend can render a context-aware message (e.g. show "Prospect not
+// found" on 404 instead of a raw HTTP code). If the upstream body isn't
+// parseable JSON (rare — typically a gateway returning HTML), we wrap it
+// in our own structured error so the frontend still sees something usable.
+// ---------------------------------------------------------------------------
+async function forwardBackendError(response, res, fallbackErrorCode) {
+  const text = await response.text().catch(() => "");
+  let body;
+  try { body = text ? JSON.parse(text) : null; } catch (_) { body = null; }
+
+  if (body && typeof body === "object") {
+    // Pass through whatever shape the backend sent. Status code preserved.
+    return res.status(response.status).json(body);
+  }
+
+  // Upstream returned non-JSON — wrap defensively. The frontend sees a
+  // consistent shape regardless.
+  return res.status(response.status).json({
+    error: {
+      message: `GoWarm backend returned ${response.status}`,
+      code: fallbackErrorCode,
+      upstream_status: response.status,
+      upstream_body_excerpt: text.slice(0, 300) || null,
+    },
+  });
+}
+
 app.get("/api/deals/:id/context", async (req, res) => {
   const { id } = req.params;
 
   if (!GOWARM_API_URL) {
     const mockFile = path.join(MOCK_DIR, `deal-${id}.json`);
     if (!fs.existsSync(mockFile)) {
-      return res.status(404).json({ error: "deal_not_found", id });
+      return res.status(404).json({ error: { message: `Deal ${id} not found in mock data`, code: "deal_not_found" } });
     }
     return res.json(JSON.parse(fs.readFileSync(mockFile, "utf8")));
   }
@@ -465,17 +499,12 @@ app.get("/api/deals/:id/context", async (req, res) => {
       },
     });
     if (!response.ok) {
-      const errText = await response.text().catch(() => "");
-      return res.status(response.status).json({
-        error: "gowarm_backend_error",
-        status: response.status,
-        detail: errText.slice(0, 500),
-      });
+      return forwardBackendError(response, res, "gowarm_backend_error");
     }
     res.json(await response.json());
   } catch (err) {
     console.error("GoWarm backend fetch failed:", err);
-    res.status(502).json({ error: "gowarm_backend_unreachable", message: err.message });
+    res.status(502).json({ error: { message: "GoWarm backend isn't reachable. Try again in a moment.", code: "gowarm_backend_unreachable", detail: err.message } });
   }
 });
 
@@ -488,8 +517,10 @@ app.get("/api/prospects/:id/context", async (req, res) => {
 
   if (!GOWARM_API_URL) {
     return res.status(500).json({
-      error: "gowarm_backend_not_configured",
-      hint: "Set GOWARM_API_URL env var to point at the GoWarm backend.",
+      error: {
+        message: "GoWarm backend isn't configured on the runner. Set GOWARM_API_URL.",
+        code: "gowarm_backend_not_configured",
+      },
     });
   }
 
@@ -505,17 +536,12 @@ app.get("/api/prospects/:id/context", async (req, res) => {
       },
     });
     if (!response.ok) {
-      const errText = await response.text().catch(() => "");
-      return res.status(response.status).json({
-        error: "gowarm_backend_error",
-        status: response.status,
-        detail: errText.slice(0, 500),
-      });
+      return forwardBackendError(response, res, "gowarm_backend_error");
     }
     res.json(await response.json());
   } catch (err) {
     console.error("GoWarm backend fetch failed:", err);
-    res.status(502).json({ error: "gowarm_backend_unreachable", message: err.message });
+    res.status(502).json({ error: { message: "GoWarm backend isn't reachable. Try again in a moment.", code: "gowarm_backend_unreachable", detail: err.message } });
   }
 });
 
@@ -796,7 +822,7 @@ function buildRunsBackendUrl(req, suffix = "") {
 
 async function proxyToRunsBackend(req, res, suffix = "") {
   if (!GOWARM_API_URL) {
-    return res.status(500).json({ error: "gowarm_backend_not_configured" });
+    return res.status(500).json({ error: { message: "GoWarm backend isn't configured on the runner. Set GOWARM_API_URL.", code: "gowarm_backend_not_configured" } });
   }
   try {
     const url = buildRunsBackendUrl(req, suffix);
@@ -807,17 +833,12 @@ async function proxyToRunsBackend(req, res, suffix = "") {
       },
     });
     if (!resp.ok) {
-      const errText = await resp.text().catch(() => "");
-      return res.status(resp.status).json({
-        error: "gowarm_backend_error",
-        status: resp.status,
-        detail: errText.slice(0, 500),
-      });
+      return forwardBackendError(resp, res, "gowarm_backend_error");
     }
     res.json(await resp.json());
   } catch (err) {
     console.error("skill-runs proxy failed:", err);
-    res.status(502).json({ error: "gowarm_backend_unreachable", message: err.message });
+    res.status(502).json({ error: { message: "GoWarm backend isn't reachable. Try again in a moment.", code: "gowarm_backend_unreachable", detail: err.message } });
   }
 }
 
