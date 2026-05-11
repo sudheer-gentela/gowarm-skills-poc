@@ -43,13 +43,27 @@ Otherwise, adapt to what you have:
 
 1. **Parse the payload.** Identify: role-level + tenure, growth stage, strongest available signal category (recent post > account event > comment > tech stack > industry-only), any contradictions between ICP match and missing criteria.
 
-2. **Select ONE primary hook and at most ONE secondary.** The hook categories, in descending preference when multiple are available:
-   - **Prospect's own words** — a recent post or substantive comment where the prospect stated a view, problem, or question. Strongest personalization anchor.
-   - **Account trigger event** — funding, leadership change, hiring surge, product launch. Anchor to the most recent and most specific.
-   - **Tech stack overlap** — prospect's stack includes a tool that pairs with or competes with your product. Only usable if the connection is concrete, not speculative.
-   - **Role + stage curiosity** — last resort. "I work with VP Sales at growth-stage SaaS on X — curious whether Y is on your list this quarter." Use only when no stronger hook is available.
+2. **Select hook(s) using `org_context.hook_preferences.preferred_categories` when set.**
 
-   **Do NOT combine three or more hooks into one email.** Additional available signals go in `confidence_notes` as "other hooks available: ..." so the rep knows what else they could anchor to.
+   The `org_context.hook_preferences.preferred_categories` array, when non-empty, expresses the rep's per-run choice of which hook categories to use. The array is ordered: the **first** item is the rep's chosen **primary hook**; subsequent items are acceptable secondary candidates in priority order.
+
+   **When `preferred_categories` is non-empty:**
+   - Use the first entry as the **primary** hook category. Use it even if you judge a different available category to be stronger — the rep has made an explicit choice. If you disagree (e.g. the rep picked `tech_stack` as primary but there's a recent on-point post), produce the email with their chosen primary AND flag the disagreement in `confidence_notes`: "Note: a recent prospect post on [topic] is also available and would have been my default primary — the rep chose tech_stack."
+   - Pick at most **one secondary** from the remaining entries, applying the standard tiebreakers (recency, specificity, concreteness, honesty) within that subset.
+   - Categories **not** in `preferred_categories` cannot appear as the primary or secondary hook in the email. They MAY be mentioned in `confidence_notes` as "other hooks available but not selected: ..." so the rep sees what they passed over.
+   - The `hook.category` in your output reflects what you actually used as the primary (which should equal `preferred_categories[0]` unless that category had no usable data — in which case fall back to the second entry and explain why in `confidence_notes`).
+
+   **When `preferred_categories` is empty, absent, or null** (the legacy / no-override path):
+
+   Apply the default hierarchy, picking the strongest available:
+   - **Prospect's own words** (`prospect_post` or `prospect_comment`) — a recent post or substantive comment where the prospect stated a view, problem, or question. Strongest personalization anchor.
+   - **Account trigger event** (`account_event`) — funding, leadership change, hiring surge, product launch. Anchor to the most recent and most specific.
+   - **Tech stack overlap** (`tech_stack`) — prospect's stack includes a tool that pairs with or competes with your product. Only usable if the connection is concrete, not speculative.
+   - **Role + stage curiosity** (`role_curiosity`) — last resort. "I work with VP Sales at growth-stage SaaS on X — curious whether Y is on your list this quarter." Use only when no stronger hook is available. The skill's experience-citation rules (see `Signal-use rules → Experience and education`) apply when this category is selected — prior roles and tenure can inform the curiosity question without becoming the headline anchor.
+
+   **In all cases:** do NOT combine three or more hooks into one email. Additional categories surface in `confidence_notes`, not in the email body.
+
+   **Note for implementers:** the schema field is `org_context.hook_preferences.preferred_categories`. This field was originally designed for standing per-rep preferences (e.g. "this rep always prefers account_event hooks") set in user `prospecting_config`. For the current per-run picker, the frontend populates this field at request time, treating it as a per-run signal. A future schema split into `signal_preferences.prefer_categories` (per-run) vs `hook_preferences.preferred_categories` (standing) is anticipated but not yet shipped. Either way, the skill's behavior is identical: respect the array order, use the first as primary, treat the rest as acceptable secondaries.
 
 3. **Consult `reference/hook-patterns.md`** for the specific structure each hook category uses — opener, bridge, ask. This is the detailed guidance for step 2.
 
@@ -141,6 +155,7 @@ Return a single JSON object. Do NOT wrap in markdown fences. Do NOT include any 
 - Posts are quotable verbatim; reactions are never citable in the email body.
 - Email body under 75 words. Subject under 7 words. LinkedIn note under 280 characters.
 - Pick ONE primary hook. Surface other available signals in `confidence_notes`, not in the email.
+- When `org_context.hook_preferences.preferred_categories` is non-empty, the first entry is the rep's chosen primary — use it even if you disagree, and put your disagreement in `confidence_notes`. Categories not in the list are off-limits for the email body but may be mentioned in `confidence_notes` as "other hooks available but not selected."
 - If ICP fit is low or critical criteria are missed, surface this in `confidence_notes` — do not silently produce a draft for a bad-fit prospect.
 - No sycophancy openers, no fake commonalities, no surveilling language about reactions.
 - A sparse payload produces a short, honest, question-led email — never an error (except the tight criteria in "Handling sparse payloads").

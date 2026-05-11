@@ -160,6 +160,12 @@
   }
   button:hover:not(:disabled) { background: var(--ember-hover); }
   button:disabled { opacity: 0.6; cursor: wait; }
+  button.secondary {
+    background: transparent;
+    color: var(--navy);
+    border: 1px solid var(--border);
+  }
+  button.secondary:hover:not(:disabled) { background: var(--bg); color: var(--navy); }
 
   /* Prospect summary strip */
   .prospect-summary {
@@ -190,6 +196,170 @@
     color: #991B1B;
   }
 
+  /* ── Hook picker ──────────────────────────────────────────────────── */
+  .picker {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin-bottom: 20px;
+  }
+  .picker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .picker-header .title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .picker-header .help {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-left: 12px;
+  }
+  .picker-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .picker-row {
+    display: grid;
+    grid-template-columns: 24px 1fr auto auto 32px;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 6px;
+    border-radius: 6px;
+    transition: background 0.1s;
+  }
+  .picker-row:hover { background: var(--bg); }
+  .picker-row.is-primary { background: rgba(232, 99, 10, 0.06); }
+  .picker-row .pri-radio {
+    accent-color: var(--ember);
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    cursor: pointer;
+  }
+  .picker-row .label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .picker-row .label .is-primary-tag {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 1px 8px;
+    background: var(--ember);
+    color: white;
+    border-radius: 8px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+  }
+  .picker-row .subline {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: right;
+  }
+  .picker-row .sec-check {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--navy);
+    margin: 0;
+    cursor: pointer;
+  }
+  .picker-row .sec-check.disabled {
+    visibility: hidden;
+  }
+  .picker-row .preview-toggle {
+    background: transparent;
+    color: var(--navy);
+    border: none;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .picker-row .preview-toggle:hover { color: var(--ember); }
+  .picker-row .preview-toggle.empty { visibility: hidden; }
+  .picker-preview {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+    padding: 10px 14px;
+    background: var(--bg);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  .picker-preview .pv-item {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .picker-preview .pv-item:last-child { border-bottom: none; }
+  .picker-preview .pv-meta {
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+  .picker-preview .pv-text { color: var(--text); line-height: 1.5; }
+  .picker-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .picker-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .picker-summary .selection {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .picker-summary .chip {
+    display: inline-block;
+    padding: 2px 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 11px;
+  }
+  .picker-summary .chip.primary {
+    background: var(--ember);
+    color: white;
+    border-color: var(--ember);
+    font-weight: 600;
+  }
+  .picker-summary .change-link {
+    background: transparent;
+    color: var(--navy);
+    border: none;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
   /* Per-run usage */
   .run-usage {
     background: var(--surface);
@@ -214,6 +384,87 @@
     display: inline-flex;
     gap: 4px;
     align-items: center;
+  }
+
+  /* ── Run history ──────────────────────────────────────────────────── */
+  .runs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 24px 0 12px;
+  }
+  .runs-header h2 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .run-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .run-block.expanded { border-color: var(--ember); }
+  .run-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .run-row:hover { background: var(--bg); }
+  .run-block.expanded .run-row { background: rgba(232, 99, 10, 0.05); }
+  .run-row .twirl {
+    font-size: 11px;
+    color: var(--text-muted);
+    transition: transform 0.15s;
+    width: 14px;
+  }
+  .run-block.expanded .run-row .twirl { transform: rotate(90deg); }
+  .run-row .meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .run-row .meta-line {
+    font-size: 13px;
+    color: var(--text);
+  }
+  .run-row .meta-line .label {
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  .run-row .meta-subj {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+  .run-row .stamp {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .run-row .used-chip {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .run-body {
+    border-top: 1px solid var(--border);
+    padding: 20px;
   }
 
   /* Cards */
@@ -406,6 +657,8 @@
 
   @media (max-width: 800px) {
     .cards { grid-template-columns: 1fr; }
+    .picker-row { grid-template-columns: 24px 1fr auto; }
+    .picker-row .subline { display: none; }
   }
 </style>
 </head>
@@ -455,26 +708,86 @@
     <label for="asUserInput">As user (optional):</label>
     <input id="asUserInput" type="text" placeholder="user_id (numeric)" value="" />
 
-    <button id="runBtn">Run Outreach Personalization</button>
+    <button id="loadBtn">Load prospect</button>
 
     <div style="width:100%; font-size:12px; color:var(--text-muted); margin-top:4px; padding:8px 12px; background:var(--bg); border-radius:6px;">
-      Enter a real prospect ID from your GoWarm DB. Leave "As user" blank for org-default org_context, or supply a user ID to apply that user's prospecting_config overrides on top.
+      Enter a real prospect ID from your GoWarm DB. Loading shows the picker; click Generate to run the skill. Each Generate creates a new run below.
     </div>
   </div>
 
   <div id="prospectSummary" class="prospect-summary" style="display:none;"></div>
-  <div id="runUsage" class="run-usage" style="display:none;"></div>
+  <div id="pickerContainer"></div>
+  <div id="runHistory"></div>
   <div id="output"></div>
 
 </main>
 
 <script>
 const $ = (id) => document.getElementById(id);
-let lastOutput = null;
 
-$("runBtn").addEventListener("click", runSkill);
+// ─── Module state ──────────────────────────────────────────────────────────
+// Holds everything we need across multiple Generate clicks for one prospect.
+// Reset whenever a new prospect is loaded.
+const state = {
+  prospectId: null,
+  prospectPayload: null,     // Most recently fetched payload (cached)
+  availability: null,        // Computed availability per category, see computeAvailability()
+  picker: {
+    primary: null,           // Enum string of currently-selected primary
+    secondaries: new Set(),  // Enum strings of currently-checked secondaries
+    expanded: true,          // false = collapsed-summary mode, true = full picker visible
+    previewOpen: new Set(),  // Category keys with preview expanded (UI keys, not enum values)
+  },
+  runs: [],                  // Newest-first list of run records (see runSkill())
+  expandedRunId: null,       // Which run is open (only one at a time)
+  nextRunId: 1,
+};
 
-// Load session totals on page load
+// ─── Category catalog ──────────────────────────────────────────────────────
+// Single source of truth for picker categories. Ordering here is the
+// "hierarchy" — first available category becomes the smart-default primary.
+// `mapTo` is the enum array sent to the skill in `preferred_categories`.
+// `previewable` controls whether the "Preview ▾" affordance renders.
+//
+// Note on Job history vs Role + stage: per the design discussion, both map to
+// `role_curiosity` in the payload for MVP. The skill treats them identically;
+// the UI distinction is for rep clarity. When both selected, dedupe in
+// buildPreferredCategories().
+const CATEGORIES = [
+  {
+    key: 'their_words',
+    label: 'Their words',
+    mapTo: ['prospect_post', 'prospect_comment'],
+    previewable: true,
+  },
+  {
+    key: 'account_signals',
+    label: 'Account signals',
+    mapTo: ['account_event'],
+    previewable: true,
+  },
+  {
+    key: 'tech_stack',
+    label: 'Tech stack',
+    mapTo: ['tech_stack'],
+    previewable: false,
+  },
+  {
+    key: 'job_history',
+    label: 'Job history',
+    mapTo: ['role_curiosity'],   // Folded for MVP; see SKILL.md note
+    previewable: false,
+  },
+  {
+    key: 'role_curiosity',
+    label: 'Role + stage curiosity',
+    mapTo: ['role_curiosity'],
+    previewable: false,
+  },
+];
+
+// ─── Initial wiring ────────────────────────────────────────────────────────
+$("loadBtn").addEventListener("click", loadProspect);
 loadSessionTotals();
 
 async function loadSessionTotals() {
@@ -499,137 +812,686 @@ function renderSessionTotals(totals) {
 
 function fmtNum(n) {
   if (n == null) return "0";
-  return n.toLocaleString();
+  return new Intl.NumberFormat("en-US").format(n);
 }
 
-async function runSkill() {
-  const prospectId = $("prospectInput").value.trim();
-
-  if (!prospectId) {
-    $("output").innerHTML = `<div class="error">Enter a prospect ID to run the skill.</div>`;
+// ─── Phase 1: load prospect, compute availability, render picker ───────────
+//
+// "Load prospect" replaces the old single-click flow. Loading fetches the
+// payload but DOES NOT run the skill — the picker shows next, with smart
+// defaults pre-selected. User clicks Generate (in the picker) to actually
+// run the skill.
+async function loadProspect() {
+  const prospectIdRaw = $("prospectInput").value.trim();
+  if (!prospectIdRaw) {
+    alert("Enter a prospect ID first.");
+    return;
+  }
+  const prospectId = parseInt(prospectIdRaw, 10);
+  if (!Number.isFinite(prospectId)) {
+    alert("Prospect ID must be numeric.");
     return;
   }
 
-  const btn = $("runBtn");
-  const output = $("output");
+  const btn = $("loadBtn");
   btn.disabled = true;
-  btn.textContent = "Running...";
-  output.innerHTML = `<div class="loading"><span class="spinner"></span>Running skill against prospect payload...</div>`;
+  btn.textContent = "Loading...";
+
+  // Reset prior state — new prospect = clean slate.
+  resetState(prospectId);
+  $("output").innerHTML = "";
+  $("runHistory").innerHTML = "";
+  $("pickerContainer").innerHTML = `<div class="loading"><span class="spinner"></span>Fetching prospect payload...</div>`;
   $("prospectSummary").style.display = "none";
-  $("runUsage").style.display = "none";
 
   try {
-    // Fetch prospect payload
     const asUser = $("asUserInput").value.trim();
     const ctxUrl = `/api/prospects/${prospectId}/context${asUser ? `?as_user=${asUser}` : ''}`;
     const prospectResp = await fetch(ctxUrl);
     if (!prospectResp.ok) {
       const errBody = await prospectResp.json().catch(() => ({}));
-      output.innerHTML = renderProspectFetchError(prospectResp.status, errBody, prospectId);
+      $("pickerContainer").innerHTML = renderProspectFetchError(prospectResp.status, errBody, prospectId);
       return;
     }
-    const prospectPayload = await prospectResp.json();
-    renderProspectSummary(prospectPayload);
+    state.prospectPayload = await prospectResp.json();
+    state.availability = computeAvailability(state.prospectPayload);
 
-    // Run skill
+    renderProspectSummary(state.prospectPayload);
+    seedPickerDefaults();
+    renderPicker();
+
+  } catch (err) {
+    $("pickerContainer").innerHTML = `<div class="error"><strong>Couldn't fetch prospect.</strong> ${escapeHtml(err.message)}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Load prospect";
+  }
+}
+
+function resetState(prospectId) {
+  state.prospectId = prospectId;
+  state.prospectPayload = null;
+  state.availability = null;
+  state.picker = {
+    primary: null,
+    secondaries: new Set(),
+    expanded: true,
+    previewOpen: new Set(),
+  };
+  state.runs = [];
+  state.expandedRunId = null;
+  state.nextRunId = 1;
+}
+
+// ─── Availability computation ──────────────────────────────────────────────
+//
+// Pure function over the payload. Returns one record per category:
+//   { available: bool, count: number, subline: string, preview: array|null }
+//
+// `subline` is what we show next to the label in the picker row.
+// `preview` is the item array for the "Preview ▾" expansion (only computed
+// for previewable categories — null otherwise).
+//
+// "available" follows the rules agreed in the design:
+//   - their_words: at least 1 post OR at least 1 substantive comment (>15 words)
+//   - account_signals: at least 1 account event
+//   - tech_stack: at least 1 entry
+//   - job_history: at least 1 prior role OR new in role (<6 months tenure)
+//   - role_curiosity: always true (fallback)
+function computeAvailability(payload) {
+  const posts    = payload?.signals?.linkedin_activity?.posts || [];
+  const comments = payload?.signals?.linkedin_activity?.comments || [];
+  const accountEvents = payload?.signals?.account_events || [];
+  const techStack  = payload?.account?.tech_stack || [];
+  const experience = payload?.prospect?.experience || [];
+  const tenureMo   = payload?.prospect?.tenure_in_role_months;
+
+  // Substantive comments only: drop trivially short ones. Matches the
+  // skill's own rule ("A 5-word comment like 'totally agree' is NOT a
+  // usable signal").
+  const substantiveComments = comments.filter(c =>
+    typeof c?.text === 'string' && c.text.trim().split(/\s+/).length > 15
+  );
+
+  // Their words preview: posts first (descending by date), then comments.
+  const theirWordsPreview = [
+    ...posts.slice(0, 10).map(p => ({
+      kind: 'POST',
+      date: p.posted_at,
+      text: p.text,
+      meta: null,
+    })),
+    ...substantiveComments.slice(0, 5).map(c => ({
+      kind: 'COMMENT',
+      date: c.commented_at,
+      text: c.text,
+      meta: c.parent_post_summary ? `on: ${c.parent_post_summary}` : null,
+    })),
+  ];
+
+  const accountEventsPreview = accountEvents.slice(0, 5).map(e => ({
+    kind: (e.type || 'EVENT').toUpperCase(),
+    date: e.occurred_at || e.published_at || e.event_date || null,
+    text: e.description || e.headline || '(no description)',
+    meta: e.source ? `source: ${e.source}` : null,
+  }));
+
+  const newInRole = typeof tenureMo === 'number' && tenureMo > 0 && tenureMo < 6;
+
+  return {
+    their_words: {
+      available: posts.length > 0 || substantiveComments.length > 0,
+      count: posts.length + substantiveComments.length,
+      subline: formatTheirWordsSubline(posts.length, substantiveComments.length),
+      preview: theirWordsPreview,
+    },
+    account_signals: {
+      available: accountEvents.length > 0,
+      count: accountEvents.length,
+      subline: formatAccountSignalsSubline(accountEvents),
+      preview: accountEventsPreview,
+    },
+    tech_stack: {
+      available: techStack.length > 0,
+      count: techStack.length,
+      subline: `${techStack.length} technolog${techStack.length === 1 ? 'y' : 'ies'}`,
+      preview: null,
+    },
+    job_history: {
+      available: experience.length > 0 || newInRole,
+      count: experience.length,
+      subline: formatJobHistorySubline(experience.length, newInRole),
+      preview: null,
+    },
+    role_curiosity: {
+      available: true,
+      count: 0,
+      subline: 'fallback',
+      preview: null,
+    },
+  };
+}
+
+function formatTheirWordsSubline(posts, comments) {
+  const parts = [];
+  if (posts > 0)    parts.push(`${posts} post${posts === 1 ? '' : 's'}`);
+  if (comments > 0) parts.push(`${comments} comment${comments === 1 ? '' : 's'}`);
+  return parts.length ? parts.join(' · ') : 'no items';
+}
+
+function formatAccountSignalsSubline(events) {
+  if (events.length === 0) return 'no events';
+  // Show most recent event as the headline. Pick a short type label + date.
+  const sorted = [...events].sort((a, b) => {
+    const da = new Date(a.occurred_at || a.published_at || a.event_date || 0).getTime();
+    const db = new Date(b.occurred_at || b.published_at || b.event_date || 0).getTime();
+    return db - da;
+  });
+  const top = sorted[0];
+  const date = top.occurred_at || top.published_at || top.event_date;
+  const dateLabel = date ? formatShortDate(date) : '';
+  const typeLabel = (top.type || 'event').replace(/_/g, ' ');
+  return `${typeLabel}${dateLabel ? ' · ' + dateLabel : ''}${events.length > 1 ? ` (+${events.length - 1} more)` : ''}`;
+}
+
+function formatJobHistorySubline(roleCount, newInRole) {
+  const parts = [];
+  if (roleCount > 0) parts.push(`${roleCount} prior role${roleCount === 1 ? '' : 's'}`);
+  if (newInRole)     parts.push('new in role');
+  return parts.length ? parts.join(' · ') : 'no history';
+}
+
+function formatShortDate(s) {
+  // Tolerate YYYY, YYYY-MM, YYYY-MM-DD, full ISO. Returns "YYYY-MM" form.
+  try {
+    if (/^\d{4}$/.test(s)) return s;
+    if (/^\d{4}-\d{2}$/.test(s)) return s;
+    const d = new Date(s);
+    if (isNaN(d)) return s;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  } catch (e) {
+    return s;
+  }
+}
+
+function formatRelativeOrShort(s) {
+  if (!s) return '';
+  try {
+    const d = new Date(s);
+    if (isNaN(d)) return s;
+    const days = Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24));
+    if (days < 0) return formatShortDate(s);
+    if (days === 0) return 'today';
+    if (days === 1) return 'yesterday';
+    if (days < 14)  return `${days} days ago`;
+    return formatShortDate(s);
+  } catch (e) {
+    return s;
+  }
+}
+
+// ─── Smart defaults ────────────────────────────────────────────────────────
+// Top-of-hierarchy available becomes primary; second-in-hierarchy gets the
+// secondary checkbox pre-checked. role_curiosity is always available but is
+// only the default if literally nothing else has signal.
+function seedPickerDefaults() {
+  const available = CATEGORIES.filter(c => state.availability[c.key].available);
+  // Prefer non-fallback as primary.
+  const nonFallback = available.filter(c => c.key !== 'role_curiosity');
+  const ordered = nonFallback.length > 0 ? nonFallback : available;
+
+  if (ordered.length === 0) return;
+  state.picker.primary = ordered[0].key;
+  if (ordered.length > 1) {
+    state.picker.secondaries.add(ordered[1].key);
+  }
+}
+
+// ─── Picker rendering ──────────────────────────────────────────────────────
+function renderPicker() {
+  const container = $("pickerContainer");
+  if (!state.availability) {
+    container.innerHTML = '';
+    return;
+  }
+
+  if (!state.picker.expanded) {
+    container.innerHTML = renderPickerSummaryBar();
+    wirePickerSummaryHandlers();
+    return;
+  }
+
+  const rows = CATEGORIES
+    .filter(c => state.availability[c.key].available)
+    .map(c => renderPickerRow(c))
+    .join('');
+
+  container.innerHTML = `
+    <div class="picker">
+      <div class="picker-header">
+        <div>
+          <span class="title">Anchor on</span>
+          <span class="help">Primary (●) + any number of secondary candidates (☑)</span>
+        </div>
+      </div>
+      <div class="picker-rows">${rows}</div>
+      <div class="picker-actions">
+        <div class="picker-summary">
+          <div class="selection">${renderSelectionChips()}</div>
+        </div>
+        <button id="generateBtn">Generate</button>
+      </div>
+    </div>
+  `;
+  wirePickerHandlers();
+}
+
+function renderPickerRow(cat) {
+  const av = state.availability[cat.key];
+  const isPrimary = state.picker.primary === cat.key;
+  const isSecondary = state.picker.secondaries.has(cat.key);
+  const previewOpen = state.picker.previewOpen.has(cat.key);
+
+  const secCheckDisabled = isPrimary;   // Can't be both primary and secondary.
+
+  const previewBlock = (cat.previewable && previewOpen)
+    ? `<div class="picker-preview">${renderPreviewItems(av.preview)}</div>`
+    : '';
+
+  return `
+    <div class="picker-row ${isPrimary ? 'is-primary' : ''}" data-key="${cat.key}">
+      <input
+        type="radio"
+        class="pri-radio"
+        name="primaryHook"
+        data-key="${cat.key}"
+        ${isPrimary ? 'checked' : ''}
+      />
+      <label class="label" data-action="pri" data-key="${cat.key}">
+        ${escapeHtml(cat.label)}
+        ${isPrimary ? '<span class="is-primary-tag">Primary</span>' : ''}
+      </label>
+      <div class="subline">${escapeHtml(av.subline)}</div>
+      <input
+        type="checkbox"
+        class="sec-check ${secCheckDisabled ? 'disabled' : ''}"
+        data-key="${cat.key}"
+        ${isSecondary ? 'checked' : ''}
+        ${secCheckDisabled ? 'disabled' : ''}
+      />
+      ${cat.previewable
+        ? `<button class="preview-toggle" data-key="${cat.key}">${previewOpen ? 'Hide ▴' : 'Preview ▾'}</button>`
+        : `<button class="preview-toggle empty"></button>`}
+      ${previewBlock}
+    </div>
+  `;
+}
+
+function renderPreviewItems(items) {
+  if (!items || items.length === 0) {
+    return `<div style="font-size:12px; color:var(--text-muted); padding:8px 0;">No items to preview.</div>`;
+  }
+  return items.map(it => {
+    const dateLabel = formatRelativeOrShort(it.date);
+    const meta = [it.kind, dateLabel, it.meta].filter(Boolean).join(' · ');
+    const snippet = (it.text || '').slice(0, 220) + (it.text && it.text.length > 220 ? '…' : '');
+    return `
+      <div class="pv-item">
+        <div class="pv-meta">${escapeHtml(meta)}</div>
+        <div class="pv-text">${escapeHtml(snippet)}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderSelectionChips() {
+  if (!state.picker.primary) return '<span style="color:var(--text-muted); font-size:12px;">Pick a primary above.</span>';
+  const chips = [];
+  const primaryCat = CATEGORIES.find(c => c.key === state.picker.primary);
+  if (primaryCat) chips.push(`<span class="chip primary">${escapeHtml(primaryCat.label)}</span>`);
+  for (const cat of CATEGORIES) {
+    if (state.picker.secondaries.has(cat.key) && cat.key !== state.picker.primary) {
+      chips.push(`<span class="chip">${escapeHtml(cat.label)}</span>`);
+    }
+  }
+  return chips.join('');
+}
+
+function renderPickerSummaryBar() {
+  return `
+    <div class="picker">
+      <div class="picker-summary">
+        <div class="selection">
+          <span class="title" style="margin-right:8px; font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.8px;">Anchored on</span>
+          ${renderSelectionChips()}
+        </div>
+        <div>
+          <button class="change-link" id="changePickerBtn">Change</button>
+          <button id="generateAgainBtn">Generate again</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function wirePickerHandlers() {
+  // Primary radios — clicking changes the primary, which may force-uncheck
+  // the corresponding secondary (you can't be both).
+  document.querySelectorAll('.pri-radio').forEach(el => {
+    el.addEventListener('change', () => {
+      const k = el.dataset.key;
+      state.picker.primary = k;
+      // If this row was also a secondary, remove it from secondaries.
+      state.picker.secondaries.delete(k);
+      renderPicker();
+    });
+  });
+
+  // Clicking the label (not the radio) also selects primary.
+  document.querySelectorAll('.label[data-action="pri"]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      // Don't fire if clicking the inner radio (radio handler covers it).
+      if (e.target.classList.contains('pri-radio')) return;
+      const k = el.dataset.key;
+      state.picker.primary = k;
+      state.picker.secondaries.delete(k);
+      renderPicker();
+    });
+  });
+
+  // Secondary checkboxes.
+  document.querySelectorAll('.sec-check').forEach(el => {
+    el.addEventListener('change', () => {
+      const k = el.dataset.key;
+      if (el.checked) state.picker.secondaries.add(k);
+      else            state.picker.secondaries.delete(k);
+      renderPicker();
+    });
+  });
+
+  // Preview toggles.
+  document.querySelectorAll('.preview-toggle:not(.empty)').forEach(el => {
+    el.addEventListener('click', () => {
+      const k = el.dataset.key;
+      if (state.picker.previewOpen.has(k)) state.picker.previewOpen.delete(k);
+      else                                 state.picker.previewOpen.add(k);
+      renderPicker();
+    });
+  });
+
+  // Generate.
+  const genBtn = $("generateBtn");
+  if (genBtn) genBtn.addEventListener('click', runSkill);
+}
+
+function wirePickerSummaryHandlers() {
+  const changeBtn = $("changePickerBtn");
+  if (changeBtn) changeBtn.addEventListener('click', () => {
+    state.picker.expanded = true;
+    renderPicker();
+  });
+  const genAgainBtn = $("generateAgainBtn");
+  if (genAgainBtn) genAgainBtn.addEventListener('click', runSkill);
+}
+
+// ─── Picker → payload mapping ──────────────────────────────────────────────
+//
+// Builds the `preferred_categories` array for the skill request.
+//
+// Rules:
+//   - Primary first, then secondaries in CATEGORIES order (not click order).
+//     CATEGORIES order is the hierarchy; this keeps the array stable for
+//     skill_runs analytics regardless of click sequence.
+//   - Each category's mapTo enums are concatenated.
+//   - Duplicates removed (job_history + role_curiosity both produce
+//     'role_curiosity' — dedupe).
+function buildPreferredCategories() {
+  const ordered = [];
+  if (state.picker.primary) ordered.push(state.picker.primary);
+  for (const cat of CATEGORIES) {
+    if (cat.key === state.picker.primary) continue;
+    if (state.picker.secondaries.has(cat.key)) ordered.push(cat.key);
+  }
+  const out = [];
+  const seen = new Set();
+  for (const key of ordered) {
+    const cat = CATEGORIES.find(c => c.key === key);
+    if (!cat) continue;
+    for (const enumVal of cat.mapTo) {
+      if (!seen.has(enumVal)) {
+        seen.add(enumVal);
+        out.push(enumVal);
+      }
+    }
+  }
+  return out;
+}
+
+// ─── Phase 2: run the skill ────────────────────────────────────────────────
+async function runSkill() {
+  if (!state.prospectPayload) {
+    alert("Load a prospect first.");
+    return;
+  }
+  if (!state.picker.primary) {
+    alert("Pick a primary hook before generating.");
+    return;
+  }
+
+  // Snapshot selections at the time of click — these persist in the run
+  // history even if the user changes selections later.
+  const snapshot = {
+    primary: state.picker.primary,
+    secondaries: Array.from(state.picker.secondaries),
+  };
+  const preferred = buildPreferredCategories();
+
+  // Inject preferred_categories into the payload at the schema location:
+  // org_context.hook_preferences.preferred_categories. We CLONE so we don't
+  // mutate the cached payload — the next run might pick different categories.
+  const payloadForRun = structuredClone(state.prospectPayload);
+  if (!payloadForRun.org_context) payloadForRun.org_context = {};
+  if (!payloadForRun.org_context.hook_preferences) {
+    payloadForRun.org_context.hook_preferences = {};
+  }
+  payloadForRun.org_context.hook_preferences.preferred_categories = preferred;
+
+  // Optimistic UI: collapse picker, show "running" placeholder run block.
+  const runId = state.nextRunId++;
+  state.expandedRunId = runId;
+  state.picker.expanded = false;
+
+  state.runs.unshift({
+    id: runId,
+    timestamp: new Date(),
+    primary: snapshot.primary,
+    secondaries: snapshot.secondaries,
+    preferred,                  // What was sent to the skill (enum values)
+    output: null,               // Filled in on success
+    usage: null,
+    error: null,
+    pending: true,
+  });
+
+  renderPicker();
+  renderRunHistory();
+
+  try {
     const skillResp = await fetch("/api/skills/outreach-personalization", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prospectPayload }),
+      body: JSON.stringify({ prospectPayload: payloadForRun }),
     });
     const skillData = await skillResp.json();
 
+    const run = state.runs.find(r => r.id === runId);
+    if (!run) return;
+    run.pending = false;
+
     if (skillResp.ok && skillData.ok) {
-      lastOutput = skillData.output;
-      renderRunUsage(skillData.usage);
-      renderOutput(skillData.output);
+      run.output = skillData.output;
+      run.usage  = skillData.usage;
       if (skillData.session_totals) renderSessionTotals(skillData.session_totals);
     } else {
-      if (skillData.usage) renderRunUsage(skillData.usage);
-      output.innerHTML = renderSkillError(skillData);
+      run.error = skillData;
+      if (skillData.usage) run.usage = skillData.usage;
     }
   } catch (err) {
-    // Network-level failure (no response at all). Backend errors are
-    // handled inline above; this catch is for fetch() throwing —
-    // typically a connection drop or DNS issue.
-    output.innerHTML = `<div class="error"><strong>Couldn't reach the skill runner.</strong> Check your connection and try again. <span style="color: var(--text-muted); font-size: 12px;">(${escapeHtml(err.message)})</span></div>`;
-  } finally {
-    btn.disabled = false;
-    btn.textContent = "Run Outreach Personalization";
+    const run = state.runs.find(r => r.id === runId);
+    if (run) {
+      run.pending = false;
+      run.error = { networkError: err.message };
+    }
   }
+
+  renderRunHistory();
 }
 
-// ─── Friendly error formatting ──────────────────────────────────────────────
-//
-// The runner proxy passes through the GoWarm backend's structured error
-// body, so errBody.error is { message, code, ... } when GoWarm spoke. On
-// network-level failures it's our own wrapper. We pick a message based on
-// status + code; backend's own message is always preferred when present.
+// ─── Run history rendering ─────────────────────────────────────────────────
+function renderRunHistory() {
+  const c = $("runHistory");
+  if (state.runs.length === 0) {
+    c.innerHTML = '';
+    return;
+  }
+  const blocks = state.runs.map(r => renderRunBlock(r)).join('');
+  c.innerHTML = `
+    <div class="runs-header">
+      <h2>Run history (${state.runs.length})</h2>
+    </div>
+    ${blocks}
+  `;
+  wireRunHistoryHandlers();
+}
+
+function renderRunBlock(run) {
+  const expanded = state.expandedRunId === run.id;
+  const body = expanded ? renderRunBody(run) : '';
+
+  const primaryCat = CATEGORIES.find(c => c.key === run.primary);
+  const primaryLabel = primaryCat ? primaryCat.label : run.primary;
+  const secLabels = run.secondaries
+    .map(k => (CATEGORIES.find(c => c.key === k) || { label: k }).label);
+  const selectionLine = [primaryLabel, ...secLabels].join(' → ');
+
+  const usedCategory = run.output?.hook?.category || (run.pending ? 'running' : run.error ? 'error' : '—');
+  const subjectSnippet = run.output?.email?.subject
+    ? `"${run.output.email.subject.slice(0, 70)}${run.output.email.subject.length > 70 ? '…' : ''}"`
+    : (run.pending ? 'Generating…' : run.error ? 'Error — expand for details' : '');
+
+  return `
+    <div class="run-block ${expanded ? 'expanded' : ''}" data-run-id="${run.id}">
+      <div class="run-row" data-run-id="${run.id}">
+        <span class="twirl">▶</span>
+        <div class="meta">
+          <div class="meta-line">
+            <span class="label">Run #${run.id}</span>
+            ${escapeHtml(selectionLine)}
+          </div>
+          <div class="meta-subj">${escapeHtml(subjectSnippet)}</div>
+        </div>
+        <span class="used-chip hook-pill ${escapeHtml(usedCategory)}">used: ${escapeHtml(formatHookCategory(usedCategory))}</span>
+        <span class="stamp">${escapeHtml(formatRunStamp(run.timestamp))}</span>
+      </div>
+      ${body}
+    </div>
+  `;
+}
+
+function renderRunBody(run) {
+  if (run.pending) {
+    return `<div class="run-body"><div class="loading"><span class="spinner"></span>Running skill...</div></div>`;
+  }
+  if (run.error) {
+    return `<div class="run-body">${renderSkillError(run.error)}</div>`;
+  }
+  return `
+    <div class="run-body">
+      ${run.usage ? renderRunUsageBlock(run.usage) : ''}
+      ${renderOutputHtml(run.output, run.id)}
+    </div>
+  `;
+}
+
+function renderRunUsageBlock(usage) {
+  return `
+    <div class="run-usage" style="margin-bottom:16px;">
+      <span class="label">This run</span>
+      <span class="chip">Model: <strong>${escapeHtml(usage.model || "?")}</strong></span>
+      <span class="chip">Input: <strong>${fmtNum(usage.input_tokens)}</strong></span>
+      <span class="chip">Output: <strong>${fmtNum(usage.output_tokens)}</strong></span>
+      <span class="chip">Total: <strong>${fmtNum(usage.total_tokens)}</strong></span>
+      <span class="chip">Cost: <strong style="color:var(--ember)">$${(usage.estimated_cost_usd || 0).toFixed(5)}</strong></span>
+      <span class="chip">Latency: <strong>${usage.latency_ms ? (usage.latency_ms / 1000).toFixed(1) + "s" : "?"}</strong></span>
+    </div>
+  `;
+}
+
+function formatRunStamp(d) {
+  const ms = Date.now() - d.getTime();
+  const sec = Math.floor(ms / 1000);
+  if (sec < 5)    return 'just now';
+  if (sec < 60)   return `${sec}s ago`;
+  const min = Math.floor(sec / 60);
+  if (min < 60)   return `${min} min ago`;
+  const hr  = Math.floor(min / 60);
+  if (hr  < 24)   return `${hr}h ago`;
+  return d.toLocaleString();
+}
+
+function wireRunHistoryHandlers() {
+  document.querySelectorAll('.run-row').forEach(el => {
+    el.addEventListener('click', () => {
+      const id = parseInt(el.dataset.runId, 10);
+      if (state.expandedRunId === id) {
+        // Toggle off if clicking the currently-expanded one.
+        state.expandedRunId = null;
+      } else {
+        state.expandedRunId = id;
+      }
+      renderRunHistory();
+    });
+  });
+}
+
+// ─── Friendly error formatting ─────────────────────────────────────────────
 function renderProspectFetchError(status, errBody, prospectId) {
   const errObj = (errBody && typeof errBody.error === "object") ? errBody.error : null;
   const code     = errObj?.code    || null;
-  const backend  = errObj?.message || (typeof errBody?.error === "string" ? errBody.error : null);
-
-  let title, body, hint;
-
-  if (status === 404) {
-    title = "Prospect not found.";
-    body  = `No prospect with ID <code>${escapeHtml(prospectId)}</code> exists in your GoWarm CRM, or it has been deleted. Double-check the ID and try again.`;
-  } else if (status === 400) {
-    title = "Invalid prospect ID.";
-    body  = backend ? escapeHtml(backend) : "The ID format wasn't accepted.";
-  } else if (status === 401 || status === 403) {
-    title = "Auth failed.";
-    body  = "The runner token is invalid or expired. Restart the skills runner with a fresh SKILL_RUNNER_TOKEN, or check that the same token is set on both the runner and the GoWarm backend.";
-  } else if (status === 502 || code === "gowarm_backend_unreachable") {
-    title = "GoWarm backend is unreachable.";
-    body  = "The skills runner couldn't connect to GoWarm. The backend may be redeploying or down. Try again in a moment.";
-  } else if (code === "gowarm_backend_not_configured") {
-    title = "Skills runner isn't configured.";
-    body  = "GOWARM_API_URL isn't set on the runner. This is a deployment issue, not something the user can fix.";
-  } else {
-    title = `Couldn't fetch prospect ${escapeHtml(prospectId)}.`;
-    body  = backend ? escapeHtml(backend) : `The GoWarm backend returned HTTP ${status} with no further detail.`;
-  }
-
-  return `<div class="error"><strong>${title}</strong><br>${body}</div>`;
-}
-
-function renderSkillError(skillData) {
-  // skillData.error is currently a string code from the runner's own
-  // internal errors (skill_output_not_valid_json, skill_execution_failed).
-  // Future runs may carry the structured shape if we ever pass through
-  // backend errors here too — handle both.
-  const errStr = typeof skillData?.error === "string" ? skillData.error : null;
-  const errMsg = (skillData?.error && typeof skillData.error === "object" && skillData.error.message) || null;
+  const message  = errObj?.message || errBody?.message || "";
+  const rawBlock = errBody && Object.keys(errBody).length ? `<details style="margin-top:12px;"><summary style="cursor:pointer;font-size:12px;color:var(--text-muted);">Raw error</summary><pre style="font-size:11px; margin-top:8px;">${escapeHtml(JSON.stringify(errBody, null, 2))}</pre></details>` : "";
 
   let title, body;
-  switch (errStr) {
-    case "missing_prospect_payload":
-      title = "Skill couldn't find a prospect payload to work with.";
-      body  = "This is usually a runner bug — try refreshing the page.";
-      break;
-    case "skill_output_not_valid_json":
-      title = "The model returned malformed JSON.";
-      body  = `The skill executed but its output wasn't parseable. Try running it again — this is usually transient. If it keeps happening on the same prospect, the input payload may have an edge case worth investigating. ${skillData.reason ? `<br><br><em>Parse error:</em> ${escapeHtml(skillData.reason)}` : ""}`;
-      break;
-    case "skill_execution_failed":
-      title = "The skill couldn't run.";
-      body  = `Something went wrong calling Anthropic. Try again in a moment. ${skillData.message ? `<br><br><em>Detail:</em> ${escapeHtml(skillData.message)}` : ""}`;
-      break;
-    default:
-      title = "Skill failed.";
-      body  = errMsg ? escapeHtml(errMsg)
-            : errStr ? escapeHtml(errStr)
-            : "Unknown error.";
+  if (status === 404 || code === "prospect_not_found") {
+    title = "Prospect not found";
+    body  = `No prospect with ID ${escapeHtml(String(prospectId))} in your GoWarm DB.`;
+  } else if (status === 403 || code === "forbidden") {
+    title = "Access denied";
+    body  = message || "The prospect exists but you don't have access.";
+  } else if (status === 401 || code === "unauthenticated") {
+    title = "Auth failed";
+    body  = "The runner token isn't accepted by the GoWarm backend.";
+  } else if (status >= 500) {
+    title = "Backend error";
+    body  = message || `GoWarm backend returned ${status}.`;
+  } else {
+    title = `Couldn't fetch prospect (HTTP ${status})`;
+    body  = message || "Unknown error.";
   }
-
-  const rawBlock = skillData.raw
-    ? `<br><br><em>Raw output (first 2k chars):</em><pre style="white-space:pre-wrap;font-size:12px;">${escapeHtml(skillData.raw)}</pre>`
-    : "";
   return `<div class="error"><strong>${title}</strong><br>${body}${rawBlock}</div>`;
 }
 
+function renderSkillError(skillData) {
+  if (skillData.networkError) {
+    return `<div class="error"><strong>Couldn't reach the skill runner.</strong> ${escapeHtml(skillData.networkError)}</div>`;
+  }
+  const err   = skillData.error || "Unknown error";
+  const reason = skillData.reason || skillData.message || "";
+  const raw    = skillData.raw ? `<details style="margin-top:8px;"><summary style="cursor:pointer;font-size:12px;color:var(--text-muted);">Raw output</summary><pre style="font-size:11px;white-space:pre-wrap;margin-top:8px;">${escapeHtml(skillData.raw.slice(0, 2000))}</pre></details>` : "";
+  return `<div class="error"><strong>${escapeHtml(err)}</strong>${reason ? `<br>${escapeHtml(reason)}` : ""}${raw}</div>`;
+}
+
+// ─── Prospect summary strip ────────────────────────────────────────────────
 function renderProspectSummary(p) {
   const summary = $("prospectSummary");
   const fit = p.icp?.fit_score ?? 0;
@@ -652,30 +1514,20 @@ function renderProspectSummary(p) {
   summary.style.display = "block";
 }
 
-function renderRunUsage(usage) {
-  if (!usage) return;
-  const box = $("runUsage");
-  box.innerHTML = `
-    <span class="label">This run</span>
-    <span class="chip">Model: <strong>${escapeHtml(usage.model || "?")}</strong></span>
-    <span class="chip">Input: <strong>${fmtNum(usage.input_tokens)}</strong></span>
-    <span class="chip">Output: <strong>${fmtNum(usage.output_tokens)}</strong></span>
-    <span class="chip">Total: <strong>${fmtNum(usage.total_tokens)}</strong></span>
-    <span class="chip">Cost: <strong style="color:var(--ember)">$${(usage.estimated_cost_usd || 0).toFixed(5)}</strong></span>
-    <span class="chip">Latency: <strong>${usage.latency_ms ? (usage.latency_ms / 1000).toFixed(1) + "s" : "?"}</strong></span>
-  `;
-  box.style.display = "flex";
-}
-
 function wordCount(s) {
   if (!s) return 0;
   return s.trim().split(/\s+/).filter(Boolean).length;
 }
 
-function renderOutput(out) {
+// ─── Output rendering (scoped per run id) ──────────────────────────────────
+//
+// The original prospecting.html had a single global `lastOutput` for the
+// copyEmail button. We now scope copy buttons to the run id so each run
+// gets its own. The element IDs are suffixed with the run id; copyEmail
+// and copyToClipboard look up by id.
+function renderOutputHtml(out, runId) {
   if (out.error) {
-    $("output").innerHTML = `<div class="error"><strong>Skill returned error:</strong> ${escapeHtml(out.error)}. Missing: ${escapeHtml((out.missing || []).join(", "))}</div>`;
-    return;
+    return `<div class="error"><strong>Skill returned error:</strong> ${escapeHtml(out.error)}. Missing: ${escapeHtml((out.missing || []).join(", "))}</div>`;
   }
 
   const email = out.email || {};
@@ -692,13 +1544,13 @@ function renderOutput(out) {
   const bodyWords = wordCount(body);
   const liChars = linkedinNote.length;
 
-  const html = `
+  return `
     <div class="cards">
 
       <div class="card">
         <h2>
           Cold Email
-          <button class="copy-btn" onclick="copyEmail()">Copy email</button>
+          <button class="copy-btn" data-copy-email="${runId}">Copy email</button>
         </h2>
         <div class="email-meta">
           <div class="meta-row">
@@ -713,16 +1565,16 @@ function renderOutput(out) {
             Subject: ${subjectWords} words (limit 7) · Preview: ${previewWords} words (limit 12) · Body: ${bodyWords} words (limit 75)
           </div>
         </div>
-        <div class="email-body" id="email-body-rendered">${escapeHtml(body)}</div>
+        <div class="email-body" id="email-body-${runId}">${escapeHtml(body)}</div>
       </div>
 
       <div class="card">
         <h2>
           LinkedIn Connection Note
-          <button class="copy-btn" onclick="copyToClipboard('linkedin-note-rendered')">Copy</button>
+          <button class="copy-btn" data-copy-id="linkedin-note-${runId}">Copy</button>
         </h2>
         <div class="linkedin-note">
-          <div id="linkedin-note-rendered">${escapeHtml(linkedinNote)}</div>
+          <div id="linkedin-note-${runId}">${escapeHtml(linkedinNote)}</div>
           <div class="char-count ${liChars > 280 ? "over" : ""}">
             ${liChars} characters (limit 280)
           </div>
@@ -748,9 +1600,9 @@ function renderOutput(out) {
       <div class="card">
         <h2>
           Rationale
-          <button class="copy-btn" onclick="copyToClipboard('rationale-content')">Copy</button>
+          <button class="copy-btn" data-copy-id="rationale-${runId}">Copy</button>
         </h2>
-        <div class="rationale" id="rationale-content">${escapeHtml(rationale)}</div>
+        <div class="rationale" id="rationale-${runId}">${escapeHtml(rationale)}</div>
       </div>
 
       ${confidenceNotes ? `
@@ -762,7 +1614,6 @@ function renderOutput(out) {
 
     </div>
   `;
-  $("output").innerHTML = html;
 }
 
 function formatHookCategory(cat) {
@@ -770,39 +1621,45 @@ function formatHookCategory(cat) {
   return cat.replace(/_/g, " ");
 }
 
-function copyEmail() {
-  if (!lastOutput || !lastOutput.email) return;
-  const e = lastOutput.email;
-  const fullEmail = `Subject: ${e.subject || ""}\n\n${e.body || ""}`;
-  navigator.clipboard.writeText(fullEmail).then(() => {
-    const btns = document.querySelectorAll(".copy-btn");
-    btns.forEach(b => {
-      if (b.textContent === "Copy email") {
-        b.textContent = "Copied!";
-        b.classList.add("copied");
-        setTimeout(() => {
-          b.textContent = "Copy email";
-          b.classList.remove("copied");
-        }, 1500);
-      }
+// Per-run copy email handler (delegated).
+document.addEventListener("click", (e) => {
+  const copyEmailBtn = e.target.closest('[data-copy-email]');
+  if (copyEmailBtn) {
+    e.stopPropagation();
+    const runId = parseInt(copyEmailBtn.dataset.copyEmail, 10);
+    const run = state.runs.find(r => r.id === runId);
+    if (!run || !run.output || !run.output.email) return;
+    const e_ = run.output.email;
+    const fullEmail = `Subject: ${e_.subject || ""}\n\n${e_.body || ""}`;
+    navigator.clipboard.writeText(fullEmail).then(() => {
+      copyEmailBtn.textContent = "Copied!";
+      copyEmailBtn.classList.add("copied");
+      setTimeout(() => {
+        copyEmailBtn.textContent = "Copy email";
+        copyEmailBtn.classList.remove("copied");
+      }, 1500);
     });
-  });
-}
+    return;
+  }
 
-function copyToClipboard(elId) {
-  const el = document.getElementById(elId);
-  if (!el) return;
-  navigator.clipboard.writeText(el.innerText).then(() => {
-    const btn = event.target;
-    const original = btn.textContent;
-    btn.textContent = "Copied!";
-    btn.classList.add("copied");
-    setTimeout(() => {
-      btn.textContent = original;
-      btn.classList.remove("copied");
-    }, 1500);
-  });
-}
+  const copyIdBtn = e.target.closest('[data-copy-id]');
+  if (copyIdBtn) {
+    e.stopPropagation();
+    const elId = copyIdBtn.dataset.copyId;
+    const el = document.getElementById(elId);
+    if (!el) return;
+    navigator.clipboard.writeText(el.innerText).then(() => {
+      const original = copyIdBtn.textContent;
+      copyIdBtn.textContent = "Copied!";
+      copyIdBtn.classList.add("copied");
+      setTimeout(() => {
+        copyIdBtn.textContent = original;
+        copyIdBtn.classList.remove("copied");
+      }, 1500);
+    });
+    return;
+  }
+});
 
 function escapeHtml(s) {
   if (s == null) return "";
