@@ -157,14 +157,31 @@
           "properties": {
             "posts": {
               "type": "array",
-              "description": "Posts authored by the prospect. Strongest personalization signal — quotable verbatim.",
+              "description": "Posts on the prospect's profile. The `action` field distinguishes original posts the prospect authored, plain reposts of others' posts, and quoted reposts (where the prospect added their own commentary on top of someone else's post). Framing rules differ per action — see outreach-principles.md.",
               "items": {
                 "type": "object",
                 "required": ["id", "posted_at", "text"],
                 "properties": {
                   "id": { "type": "string" },
                   "posted_at": { "type": ["string", "null"], "format": "date-time" },
-                  "text": { "type": "string", "description": "Full post text, verbatim." },
+                  "text": { "type": "string", "description": "The body text shown on the post. For action='posted' this is the prospect's words. For action='reposted' this is the ORIGINAL author's words (the prospect did not write this). For action='quoted_repost' this is often a merged blob — prefer `commentary` and `quoted_text` for clean attribution." },
+                  "action": {
+                    "type": ["string", "null"],
+                    "enum": ["posted", "reposted", "quoted_repost", null],
+                    "description": "Authorship signal. `posted` = prospect authored the text. `reposted` = plain repost; prospect did NOT write the text (see quoted_author). `quoted_repost` = prospect reposted someone else's post AND added their own commentary (see commentary + quoted_text). `null` or absent = legacy capture; treat as likely original but hedge framing."
+                  },
+                  "commentary": {
+                    "type": ["string", "null"],
+                    "description": "ONLY populated for action='quoted_repost'. The prospect's own words written on top of the embedded original post. This IS the prospect's voice — cite this when using a quoted_repost as a hook, NOT the quoted_text or text fields."
+                  },
+                  "quoted_text": {
+                    "type": ["string", "null"],
+                    "description": "The body of the embedded original post when action='reposted' or 'quoted_repost'. NOT written by the prospect. Use only as context — never quote with phrasing like 'your post'."
+                  },
+                  "quoted_author": {
+                    "type": ["string", "null"],
+                    "description": "The display name of the original author when action='reposted' or 'quoted_repost'. Use for honest attribution: 'saw you share <quoted_author>'s post about X' rather than 'your post about X'."
+                  },
                   "engagement_count": { "type": ["number", "null"] },
                   "topic_tags": {
                     "type": "array",

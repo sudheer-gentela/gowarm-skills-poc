@@ -63,6 +63,12 @@ Otherwise, adapt to what you have:
 
    **In all cases:** do NOT combine three or more hooks into one email. Additional categories surface in `confidence_notes`, not in the email body.
 
+   **Repost-aware filtering within the `prospect_post` category.** When `prospect_post` is selected (either via preferred_categories or the default hierarchy), the available posts may have any `action` value: `posted`, `reposted`, `quoted_repost`, or null. Use them as follows:
+   - **`action: "posted"`** — full-strength `prospect_post` hook. Emit `hook.category: "prospect_post"`.
+   - **`action: "quoted_repost"`** — usable as `prospect_post` because the prospect's `commentary` IS their own writing. Emit `hook.category: "prospect_post"`. Cite the commentary, NOT the quoted body.
+   - **`action: "reposted"`** — NOT a `prospect_post` (the prospect didn't write it). If the rep selected `prospect_post` as primary and the only available posts are plain reposts, prefer falling back to the next category in `preferred_categories`. If you DO use a plain repost (e.g., the rep selected it explicitly via a future `account_post` category, or no other signal is available), emit `hook.category: "account_post"` to reflect what it actually is. Flag the substitution in `confidence_notes`: "Used a plain repost — prospect's posts available are reposts of others, not their own writing."
+   - **`action: null`** — treat as likely `prospect_post` with hedged framing (see `Signal-use rules → Posts`).
+
    **Note for implementers:** the schema field is `org_context.hook_preferences.preferred_categories`. This field was originally designed for standing per-rep preferences (e.g. "this rep always prefers account_event hooks") set in user `prospecting_config`. For the current per-run picker, the frontend populates this field at request time, treating it as a per-run signal. A future schema split into `signal_preferences.prefer_categories` (per-run) vs `hook_preferences.preferred_categories` (standing) is anticipated but not yet shipped. Either way, the skill's behavior is identical: respect the array order, use the first as primary, treat the rest as acceptable secondaries.
 
 3. **Consult `reference/hook-patterns.md`** for the specific structure each hook category uses — opener, bridge, ask. This is the detailed guidance for step 2.
@@ -79,11 +85,44 @@ Otherwise, adapt to what you have:
 
 Different signal categories have different rules. This is not optional — violating these is the difference between a good email and a creepy one.
 
-### Posts (prospect's authored posts)
+### Posts (items on the prospect's profile)
+
+Posts on a prospect's profile come in three structurally distinct flavors. The `action` field on each post item tells you which:
+
+- **`action: "posted"`** — the prospect wrote this. Authentic personal voice. Strongest "their words" signal.
+- **`action: "reposted"`** — plain repost of someone else's post. The prospect did NOT write this. The `text` field contains the original author's words, and `quoted_author` names them.
+- **`action: "quoted_repost"`** — the prospect reposted someone else's post AND added their own commentary on top. The `commentary` field contains the prospect's own words; the `quoted_text` field contains the original post body; `quoted_author` names the original author.
+- **`action: null` or absent** — legacy data from before action capture. Treat conservatively: assume original, but hedge framing slightly (see below).
+
+Framing rules per action:
+
+**For `action: "posted"`:**
 - **Quotable verbatim** with attribution. "Saw your post from Tuesday about forecast accuracy — the line about Salesforce not matching the field stuck with me."
 - **Do NOT paraphrase into claims.** If the post says "we're rethinking our tooling," you cannot write "I saw you're unhappy with your current stack." Those are different statements.
-- Reference the post's timing if recent (<2 weeks) — it anchors the email in the prospect's current headspace.
+- Reference timing if recent (<2 weeks). It anchors the email in the prospect's current headspace.
 - If quoting, keep the quote under 15 words and ensure the surrounding email text doesn't make the quote say more than it said.
+
+**For `action: "reposted"` (plain repost):**
+- **Do NOT claim authorship.** Phrases like "your post about X" or "saw you write about X" are dishonest — the prospect did NOT write this. The prospect will spot the lie immediately ("I didn't post that") and trust collapses.
+- **Honest framing options:**
+  - "Saw you share [quoted_author]'s post about X" — attributes correctly
+  - "Noticed you amplified the [topic] news from [quoted_author]" — frames as endorsement, not authorship
+  - "[quoted_author]'s [topic] post crossed my feed via your profile" — explicit about the path
+- The hook here is what the prospect CHOSE TO AMPLIFY, not what they SAID. That's a real signal (it tells you what they care about) but a weaker one than their own writing.
+- Pick this hook only when `quoted_author` is populated. If `quoted_author` is null (extraction failed), do not use this item as the email's primary hook — fall back to a different signal. Mention in `confidence_notes` that an unidentifiable repost exists.
+- Set `hook.category: "account_post"` in your output (not `prospect_post`) to reflect that this is account-level amplification, not personal voice.
+
+**For `action: "quoted_repost"` (repost with commentary):**
+- The HOOK is the prospect's `commentary`, not the `quoted_text`. Their commentary is their voice; the quoted post body is someone else's.
+- **Quotable framing:** "Saw your take on [quoted_author]'s post — '[brief excerpt of commentary]'" — this is honest because you're quoting what they actually wrote (the commentary).
+- **Do NOT confuse the quoted post body for their commentary.** A common failure: the prospect wrote "Fun conversation!" as commentary on a quoted post about Series B funding. Writing "Saw your post about your Series B" would be wrong twice — they didn't write the Series B claim, and they weren't even discussing Series B in their commentary.
+- The quoted body is context, not voice. You can reference it for context ("which discussed Replit's $9B valuation") but must not put words in the prospect's mouth.
+- Set `hook.category: "prospect_post"` since the commentary IS the prospect's own writing.
+
+**For `action: null` (legacy/unknown):**
+- Treat as likely original (most profile posts are), but hedge: "Saw a recent post on your profile about X" rather than "Your post about X."
+- Don't quote tight phrases verbatim — if the post turns out to have been a repost we couldn't classify, a tight quote with "you said" framing would be wrong.
+- Acceptable; just less precise than the explicit cases.
 
 ### Comments (prospect's comments on others' posts)
 - Usable only when `parent_post_summary` provides enough context to make the comment meaningful.
@@ -136,7 +175,7 @@ Return a single JSON object. Do NOT wrap in markdown fences. Do NOT include any 
   },
   "linkedin_note": "...",
   "hook": {
-    "category": "prospect_post" | "prospect_comment" | "account_event" | "tech_stack" | "role_curiosity" | "none_available",
+    "category": "prospect_post" | "prospect_comment" | "account_post" | "account_event" | "tech_stack" | "role_curiosity" | "none_available",
     "primary_signal_id": "...",
     "secondary_signal_id": null
   },
@@ -156,6 +195,7 @@ Return a single JSON object. Do NOT wrap in markdown fences. Do NOT include any 
 - Email body under 75 words. Subject under 7 words. LinkedIn note under 280 characters.
 - Pick ONE primary hook. Surface other available signals in `confidence_notes`, not in the email.
 - When `org_context.hook_preferences.preferred_categories` is non-empty, the first entry is the rep's chosen primary — use it even if you disagree, and put your disagreement in `confidence_notes`. Categories not in the list are off-limits for the email body but may be mentioned in `confidence_notes` as "other hooks available but not selected."
+- **Never claim authorship of reposted content.** When a post has `action: "reposted"`, the prospect did NOT write it — the body is the original author's words (named in `quoted_author`). Phrasing it as "your post" or "you wrote" is a factual error the prospect will catch. Use honest framing: "saw you share X's post," "noticed you amplified," etc. For `quoted_repost`, the prospect's own writing is in `commentary` (not `quoted_text` or `text`) — cite commentary, attribute the rest.
 - If ICP fit is low or critical criteria are missed, surface this in `confidence_notes` — do not silently produce a draft for a bad-fit prospect.
 - No sycophancy openers, no fake commonalities, no surveilling language about reactions.
 - A sparse payload produces a short, honest, question-led email — never an error (except the tight criteria in "Handling sparse payloads").
